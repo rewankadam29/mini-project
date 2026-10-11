@@ -2,12 +2,16 @@
 const http = require('node:http');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const fsSync = require('node:fs');
+if (fsSync.existsSync('.env')) process.loadEnvFile('.env');
+const { createAuth } = require('./auth');
 const { DemoRepository } = require('./repository');
 const { createService } = require('./service');
 const handle = createService(new DemoRepository());
+const auth = createAuth();
 const publicRoot = path.join(__dirname, '../public');
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8' };
-const allowed = new Set(['/index.html', '/style.css', '/script.js', '/js/allocator.js', '/js/demo-data.js']);
+const allowed = new Set(['/index.html', '/login.html', '/login.js', '/session.js', '/style.css', '/script.js', '/js/allocator.js', '/js/demo-data.js', '/js/selection.js']);
 const server = http.createServer(async (req, res) => {
   try {
     const pathname = new URL(req.url, 'http://localhost').pathname;
@@ -20,14 +24,15 @@ const server = http.createServer(async (req, res) => {
       let data;
       try { data = body ? JSON.parse(body) : undefined; }
       catch { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid JSON.' })); return; }
-      const result = await handle(req.method, pathname, data);
-      res.writeHead(result.status, { 'Content-Type': 'application/json' });
+      const result = auth.handle(req.method, pathname, data, req.headers, req.socket.remoteAddress) || await handle(req.method, pathname, data);
+      res.writeHead(result.status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...result.headers });
       res.end(JSON.stringify(result.body)); return;
     }
-    const file = pathname === '/' ? '/index.html' : pathname;
+    const file = pathname === '/' ? (auth.session(req.headers) ? '/index.html' : '/login.html') : pathname;
+    if (file === '/index.html' && !auth.session(req.headers)) { res.writeHead(302, { Location: '/login.html', 'Cache-Control': 'no-store' }); res.end(); return; }
     if (!['GET', 'HEAD'].includes(req.method) || !allowed.has(file)) { res.writeHead(404); res.end('Not found'); return; }
     const bytes = await fs.readFile(path.join(publicRoot, file));
-    res.writeHead(200, { 'Content-Type': mime[path.extname(file)] }); res.end(req.method === 'HEAD' ? undefined : bytes);
+    res.writeHead(200, { 'Content-Type': mime[path.extname(file)], 'Cache-Control': 'no-store' }); res.end(req.method === 'HEAD' ? undefined : bytes);
   } catch { res.writeHead(500); res.end('Server error'); }
 });
 if (require.main === module) {

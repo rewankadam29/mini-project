@@ -7,7 +7,7 @@ Guide: Prof. Govind Gaundalkar.
 
 ## Run immediately
 
-Extract this ZIP first. Open `public/index.html` in Chrome or Edge. Click **Load Demo Inputs**, then **Generate Seating Arrangement**. No installation is needed for this browser demo. All scripts and data are local. Sample records are synthetic. The browser demo does not store results after closing or reloading the page.
+Extract this ZIP first. The app opens with an admin login. Run the Node demo below and open http://localhost:3000. Demo username: `admin`. Demo password: `Admin@123`. Opening HTML directly displays the login page with instructions to start the server.
 
 For a working backend demo, install Node.js 20.12 or newer (Node.js 22 or 24 LTS recommended), open a terminal in this project folder and run:
 
@@ -85,7 +85,7 @@ POST example:
 {"examName":"CNS","examDate":"2026-10-12","examTime":"10:00","divisions":["CE-A","CE-B","IT-A","EXTC-A"],"rooms":["101","102","103"],"seatingType":"shuffled"}
 ```
 
-This is an administrator prototype for local evaluation. It binds to localhost. Authentication and role management remain future work. Do not use real private student data on a public server without adding access control.
+This is an administrator prototype for local evaluation. It binds to localhost. Admin login uses server-verified credentials, an expiring HttpOnly cookie and server-side sessions. Set ADMIN_USERNAME and ADMIN_PASSWORD in .env to change the default demo account. Sessions clear when the server restarts. More detailed roles remain future work. Do not use real private student data on a public server without adding access control.
 
 ## Verify
 
@@ -93,10 +93,14 @@ This is an administrator prototype for local evaluation. It binds to localhost. 
 npm test
 ```
 
-The 20 tests include both modes, exact capacity errors, infeasibility, blank separators, partially unavailable seats, duplicate IDs, search-limit handling, corrupted plans, API validation, failed storage and a live HTTP adapter. An independent exhaustive oracle checks all two-division count combinations on a 2×3 room.
+The 25 tests include both modes, exact capacity errors, infeasibility, blank separators, partially unavailable seats, duplicate IDs, search-limit handling, corrupted plans, API validation, failed storage and a live HTTP adapter. An independent exhaustive oracle checks all two-division count combinations on a 2×3 room.
 
 ## Git and evaluation
 
 The ZIP includes a local Git repository and actual commits created during this preparation session under the author `Codex`. It does not claim earlier team work. Feature branches contain implementation changes and merge commits. It is not linked to GitHub yet. Use `docs/GIT_WORKFLOW.md` to inspect it and connect your own repository. Review the generated code as a team and follow your college's assistance disclosure rules.
 
 See `docs/PHASE3_DEMO.md` for the presentation sequence and viva answers.
+
+## Admin selection update
+
+Use Select All Classes or Select All Rooms to select the complete catalog, including options hidden by search. Use Select Shown to add only visible matches without clearing previous selections. Search classes by name and filter by department. Clear All resets the entire selection. Counts show selected classes, selected rooms, students and available seats. A partially selected catalog shows an indeterminate Select All checkbox. Logout invalidates the server session.

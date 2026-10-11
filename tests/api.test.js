@@ -30,14 +30,23 @@ test('live zero-install HTTP adapter serves UI and both API strategies', async (
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
-    assert.match(await (await fetch(base)).text(), /seatingForm/);
-    const catalog = await (await fetch(`${base}/api/catalog`)).json(); assert.equal(catalog.students.length, 80);
+    assert.match(await (await fetch(base)).text(), /loginForm/);
+    assert.equal((await fetch(`${base}/api/catalog`)).status, 401);
+    assert.equal((await fetch(`${base}/api/arrangements`, { method: 'POST', body: JSON.stringify(request) })).status, 401);
+    const login = await fetch(`${base}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: process.env.ADMIN_USERNAME || 'admin', password: process.env.ADMIN_PASSWORD || 'Admin@123' }) });
+    assert.equal(login.status, 200);
+    const cookie = login.headers.get('set-cookie').split(';')[0];
+    assert.match(login.headers.get('set-cookie'), /HttpOnly/);
+    assert.match(await (await fetch(`${base}/index.html`, { headers: { cookie } })).text(), /Select All Classes/);
+    const catalog = await (await fetch(`${base}/api/catalog`, { headers: { cookie } })).json(); assert.equal(catalog.students.length, 80);
     for (const seatingType of ['shuffled', 'column']) {
-      const response = await fetch(`${base}/api/arrangements`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...request, seatingType }) });
+      const response = await fetch(`${base}/api/arrangements`, { method: 'POST', headers: { 'Content-Type': 'application/json', cookie }, body: JSON.stringify({ ...request, seatingType }) });
       assert.equal(response.status, 201); assert.equal((await response.json()).validation.valid, true);
     }
     assert.equal((await fetch(`${base}/api/arrangements`, { method: 'POST', body: '{broken' })).status, 400);
-    assert.equal((await fetch(`${base}/api/unknown`)).status, 404);
+    assert.equal((await fetch(`${base}/api/unknown`, { headers: { cookie } })).status, 404);
     assert.equal((await fetch(`${base}/backend/repository.js`)).status, 404);
+    assert.equal((await fetch(`${base}/api/auth/logout`, { method: 'POST', headers: { cookie } })).status, 200);
+    assert.equal((await fetch(`${base}/api/catalog`, { headers: { cookie } })).status, 401);
   } finally { await new Promise(resolve => server.close(resolve)); }
 });

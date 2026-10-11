@@ -1,24 +1,28 @@
-EXAM SEATING GENERATOR — PHASE 3
+EXAM SEATING GENERATOR — ADMIN LOGIN UPDATE
 
-1. Extract the entire ZIP before opening files.
-2. Open public/index.html in Chrome or Edge.
-3. Click Load Demo Inputs.
-4. Click Generate Seating Arrangement.
-5. Switch to Column-Based Seating and generate again.
+1. Extract the ZIP.
+2. Open PowerShell in the exam-seating folder containing package.json.
+3. Run: npm.cmd run demo
+4. Open http://localhost:3000
+5. Username: admin
+6. Password: Admin@123
 
-For the backend demonstration:
-Open a terminal in this folder and run: npm run demo
-Open http://localhost:3000
-Node.js 20.12 or newer is required. No npm install is needed for this mode.
+The dashboard has searchable classes and rooms, department filtering,
+Select All, Select Shown, Clear All, live counts and Logout.
+Click Load Demo Inputs, then Generate Seating Arrangement.
+No npm install or MySQL setup is needed for this demo.
+Node.js 20.12 or newer is required.
 
-Before tomorrow:
-Read docs/PHASE3_DEMO.md for the demonstration and viva answers.
-Read docs/GIT_WORKFLOW.md to push the actual repository to your GitHub.
-The ZIP includes Git history, but no GitHub remote is connected yet.
-The local history is authored by Codex for this preparation session.
-Read README.md for Express and MySQL setup.
-Run npm test — 20 automated checks should pass.
+You must use the server for login. Double-clicking HTML shows startup instructions.
+Configure custom credentials in .env using ADMIN_USERNAME and ADMIN_PASSWORD.
+Run npm.cmd test — 25 tests should pass.
 
-MySQL persistence and the installed Express adapter need a local integration check.
-Check browser layout, CSV export and Print / Save PDF once on your own laptop.
-The fallback demo uses synthetic data and memory storage.
+If you already pushed the previous version to GitHub:
+Keep your existing .git folder and .env. Copy public, backend, tests,
+package.json, README.md, START_HERE.txt and .env.example into the existing project.
+Do not copy the updated ZIP's .git over your GitHub-connected repository.
+Stop the old server with Ctrl+C and restart npm.cmd run demo.
+Commit and push these actual changes from your existing repository.
+
+The bundled Phase 3 slides describe the earlier version.
+Mention admin login and bulk selection during the new demonstration.
