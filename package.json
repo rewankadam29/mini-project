@@ -1,0 +1,13 @@
+{
+  "name": "exam-seating-arrangement-generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Phase 3 implementation of graph based examination seating",
+  "scripts": {
+    "demo": "node backend/demo-server.js",
+    "start": "node backend/server.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": { "express": "^5.1.0", "mysql2": "^3.14.0" }
+}

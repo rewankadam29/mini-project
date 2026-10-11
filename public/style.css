@@ -1,0 +1,277 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f5f7fb;
+    color: #222;
+}
+
+.header {
+    background-color: #153e75;
+    color: white;
+    padding: 30px 20px;
+}
+
+.header-content {
+    max-width: 1050px;
+    margin: auto;
+}
+
+.header h1 {
+    font-size: 30px;
+    margin-bottom: 7px;
+}
+
+.header p {
+    color: #d8e4f5;
+    font-size: 15px;
+}
+
+.container {
+    width: 90%;
+    max-width: 1050px;
+    margin: 35px auto;
+}
+
+.seating-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.card {
+    background-color: white;
+    padding: 26px;
+    border-radius: 10px;
+    border: 1px solid #e2e6ec;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.section-heading {
+    margin-bottom: 22px;
+}
+
+.section-heading h2 {
+    color: #153e75;
+    font-size: 21px;
+    margin-bottom: 5px;
+}
+
+.section-heading p {
+    color: #777;
+    font-size: 14px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 7px;
+    font-size: 14px;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"] {
+    padding: 12px;
+    border: 1px solid #ccd2da;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus {
+    border-color: #153e75;
+}
+
+.option-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.option-card {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 14px;
+    border: 1px solid #d7dce3;
+    border-radius: 7px;
+    cursor: pointer;
+    background-color: #fafbfc;
+}
+
+.option-card:hover {
+    border-color: #153e75;
+    background-color: #f1f5fa;
+}
+
+.option-card span {
+    font-weight: 500;
+}
+
+.note {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #777;
+}
+
+.seating-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.seating-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 20px;
+    border: 1px solid #d7dce3;
+    border-radius: 8px;
+    background-color: #fafbfc;
+    cursor: pointer;
+}
+
+.seating-card:hover {
+    border-color: #153e75;
+    background-color: #f1f5fa;
+}
+
+.seating-card input {
+    margin-top: 5px;
+}
+
+.seating-card h3 {
+    color: #153e75;
+    margin-bottom: 7px;
+    font-size: 16px;
+}
+
+.seating-card p {
+    color: #666;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.button-container {
+    text-align: center;
+}
+
+button {
+    background-color: #153e75;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    padding: 14px 35px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0f315e;
+}
+
+footer {
+    margin-top: 40px;
+    background-color: #153e75;
+    color: #d8e4f5;
+    text-align: center;
+    padding: 16px;
+    font-size: 13px;
+}
+
+@media (max-width: 750px) {
+
+    .form-grid,
+    .seating-options {
+        grid-template-columns: 1fr;
+    }
+
+    .option-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .header h1 {
+        font-size: 24px;
+    }
+}
+.result-section {
+    display: none;
+    margin-top: 30px;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.result-header h2 {
+    color: #153e75;
+    margin-bottom: 6px;
+}
+
+.result-header p {
+    color: #666;
+    font-size: 14px;
+}
+
+#pdfButton {
+    background-color: #198754;
+}
+
+#pdfButton:hover {
+    background-color: #146c43;
+}
+
+.room-result {
+    margin-top: 30px;
+}
+
+.room-result h3 {
+    color: #153e75;
+    margin-bottom: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background-color: #153e75;
+    color: white;
+}
+
+th,
+td {
+    padding: 11px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f6f8fb;
+}

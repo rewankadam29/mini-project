@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Exam Seating Arrangement Generator</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <h1>Exam Seating Arrangement Generator</h1>
+            <p>Generate organized and conflict-free examination seating plans</p>
+        </div>
+    </header>
+
+
+    <main class="container">
+
+        <form id="seatingForm" class="seating-form">
+
+            <section class="card">
+
+                <div class="section-heading">
+                    <h2>Exam Details</h2>
+                    <p>Enter the examination information</p>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group full-width">
+
+                        <label for="examName">
+                            Exam Name / Subject
+                        </label>
+
+                        <input
+                            type="text"
+                            id="examName"
+                            name="examName"
+                            placeholder="e.g. Data Structures"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="examDate">
+                            Exam Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="examDate"
+                            name="examDate"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="examTime">
+                            Exam Time
+                        </label>
+
+                        <input
+                            type="time"
+                            id="examTime"
+                            name="examTime"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="card">
+
+                <div class="section-heading">
+                    <h2>Appearing Divisions</h2>
+                    <p>Select divisions appearing for the examination</p>
+                </div>
+
+                <div class="option-grid">
+
+                    <label class="option-card">
+
+                        <input
+                            type="checkbox"
+                            name="division"
+                            value="CE-A"
+                        >
+
+                        <span>CE-A</span>
+
+                    </label>
+
+
+                    <label class="option-card">
+
+                        <input
+                            type="checkbox"
+                            name="division"
+                            value="CE-B"
+                        >
+
+                        <span>CE-B</span>
+
+                    </label>
+
+
+                    <label class="option-card">
+
+                        <input
+                            type="checkbox"
+                            name="division"
+                            value="IT-A"
+                        >
+
+                        <span>IT-A</span>
+
+                    </label>
+
+
+                    <label class="option-card">
+
+                        <input
+                            type="checkbox"
+                            name="division"
+                            value="EXTC-A"
+                        >
+
+                        <span>EXTC-A</span>
+
+                    </label>
+
+                </div>
+
+            </section>
+
+
+            <section class="card">
+
+                <div class="section-heading">
+                    <h2>Available Rooms</h2>
+                    <p>Select rooms available for the examination</p>
+                </div>
+
+                <div class="option-grid">
+
+                    <label class="option-card">
+
+                        <input
+                            type="checkbox"
+                            name="room"
+                            value="101"
+                        >
+
+                        <span>Room 101</span>
+
+                    </label>
+
+
+                    <label class="option-card">
+
+                        <input
+                            type="checkbox"
+                            name="room"
+                            value="102"
+                        >
+
+                        <span>Room 102</span>
+
+                    </label>
+
+
+                    <label class="option-card">
+
+                        <input
+                            type="checkbox"
+                            name="room"
+                            value="103"
+                        >
+
+                        <span>Room 103</span>
+
+                    </label>
+
+
+                    <label class="option-card">
+
+                        <input
+                            type="checkbox"
+                            name="room"
+                            value="104"
+                        >
+
+                        <span>Room 104</span>
+
+                    </label>
+
+                </div>
+
+                <p class="note">
+                    Room rows, columns and capacity are fetched from the database.
+                </p>
+
+            </section>
+
+
+            <section class="card">
+
+                <div class="section-heading">
+                    <h2>Seating Type</h2>
+                    <p>Select the seating allocation strategy</p>
+                </div>
+
+                <div class="seating-options">
+
+                    <label class="seating-card">
+
+                        <input
+                            type="radio"
+                            name="seatingType"
+                            value="shuffled"
+                            required
+                        >
+
+                        <div>
+
+                            <h3>Fully Shuffled Seating</h3>
+
+                            <p>
+                                Students are distributed across individual seats
+                                using graph-based allocation.
+                            </p>
+
+                        </div>
+
+                    </label>
+
+
+                    <label class="seating-card">
+
+                        <input
+                            type="radio"
+                            name="seatingType"
+                            value="column"
+                            required
+                        >
+
+                        <div>
+
+                            <h3>Column-Based Seating</h3>
+
+                            <p>
+                                Students of the same division are placed vertically
+                                in assigned columns.
+                            </p>
+
+                        </div>
+
+                    </label>
+
+                </div>
+
+            </section>
+
+
+            <div class="button-container">
+
+                <button type="submit">
+                    Generate Seating Arrangement
+                </button>
+
+            </div>
+
+        </form>
+
+    </main>
+
+
+    <footer>
+        <p>Exam Seating Arrangement Generator</p>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
