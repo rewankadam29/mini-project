@@ -235,7 +235,6 @@ document.getElementById('studentCsv').addEventListener('change', async event => 
       if (rolls.has(key)) throw new Error('Roll numbers must be unique within each division.');
       rolls.add(key);
     }
-    SeatingAllocator.allocate; // Shared validation runs before any allocation.
     if (!students.length || students.length > 600 || students.some(s => required.some(k => !s[k])) || new Set(students.map(s => s.student_id)).size !== students.length) throw new Error('Use 1–600 complete records with unique student IDs.');
     catalog = { ...catalog, students, source: 'Imported CSV' }; imported = true;
     showCatalog(); message(`Imported ${students.length} students. Select divisions and rooms again.`);
