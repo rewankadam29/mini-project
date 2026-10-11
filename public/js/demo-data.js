@@ -1,5 +1,11 @@
 (function (root) {
-  const divisions = ['CE-A', 'CE-B', 'IT-A', 'EXTC-A'];
+  const departments = ['CE', 'CSE', 'IT', 'EXTC'];
+  const sections = ['A', 'B', 'C', 'D', 'E'];
+
+  const divisions = departments.flatMap(department =>
+    sections.map(section => `${department}-${section}`)
+  );
+
   const students = divisions.flatMap((division, group) =>
     Array.from({ length: 20 }, (_, i) => ({
       student_id: `${group + 1}${String(i + 1).padStart(3, '0')}`,
@@ -8,10 +14,31 @@
       division
     }))
   );
-  const rooms = ['101', '102', '103', '104'].map(room_id => ({
-    room_id, room_number: room_id, rows: 5, columns: 6, capacity: 30
-  }));
-  const data = { students, rooms, source: 'Sample data' };
-  if (typeof module !== 'undefined' && module.exports) module.exports = data;
-  else root.DemoData = data;
+
+  const rooms = [1, 2, 3, 4].flatMap(floor =>
+    Array.from({ length: 5 }, (_, i) => {
+      const number = String(floor * 100 + i + 1);
+
+      return {
+        room_id: number,
+        room_number: number,
+        floor,
+        rows: 5,
+        columns: 6,
+        capacity: 30
+      };
+    })
+  );
+
+  const data = {
+    students,
+    rooms,
+    source: 'Sample data'
+  };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = data;
+  } else {
+    root.DemoData = data;
+  }
 })(typeof globalThis !== 'undefined' ? globalThis : this);
