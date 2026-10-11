@@ -104,3 +104,17 @@ See `docs/PHASE3_DEMO.md` for the presentation sequence and viva answers.
 ## Admin selection update
 
 Use Select All Classes or Select All Rooms to select the complete catalog, including options hidden by search. Use Select Shown to add only visible matches without clearing previous selections. Search classes by name and filter by department. Clear All resets the entire selection. Counts show selected classes, selected rooms, students and available seats. A partially selected catalog shows an indeterminate Select All checkbox. Logout invalidates the server session.
+
+
+## Testing
+
+The project includes automated tests for:
+- Admin authentication
+- Class and classroom selection
+- Seating allocation strategies
+- Seating arrangement validation
+- Backend API operations
+
+Run the tests using:
+
+npm test
