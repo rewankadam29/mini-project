@@ -13,9 +13,9 @@
 <body>
 
     <header class="header">
-        <div class="header-content">
+        <div class="header-content admin-header"><div>
             <h1>Exam Seating Arrangement Generator</h1>
-            <p>Phase 3 implementation · Two graph-based seating strategies</p>
+            <p>Phase 3 implementation · Two graph-based seating strategies</p></div><div class="admin-account"><span>Admin: <strong id="adminName">Administrator</strong></span><button type="button" id="logoutButton" class="logout-button">Logout</button></div>
         </div>
     </header>
 
@@ -94,11 +94,17 @@
             <section class="card">
 
                 <div class="section-heading">
-                    <h2>Appearing Divisions</h2>
-                    <p>Select divisions appearing for the examination</p>
+                    <h2>Appearing Classes / Divisions</h2>
+                    <p>Choose all classes at once, or search and select a group.</p>
                 </div>
 
-                <div class="option-grid" id="divisionOptions">
+                <div class="selection-toolbar">
+                    <div class="selection-search"><label for="divisionSearch">Search classes</label><input type="search" id="divisionSearch" placeholder="Search CE-A, IT, EXTC..."></div>
+                    <div class="department-filter"><label for="departmentFilter">Department</label><select id="departmentFilter"><option value="">All departments</option></select></div>
+                </div>
+                <div class="bulk-actions"><label class="select-all-label"><input type="checkbox" id="allDivisions"> Select All Classes</label><button type="button" class="secondary compact" id="selectShownDivisions">Select Shown</button><button type="button" class="text-button" id="clearDivisions">Clear All</button><span id="divisionCount" class="selection-count" aria-live="polite"></span></div>
+                <p id="divisionNoMatches" class="note" hidden>No classes match your search.</p>
+                <div class="option-grid selection-list" id="divisionOptions">
 
                     <label class="option-card">
 
@@ -160,10 +166,13 @@
 
                 <div class="section-heading">
                     <h2>Available Rooms</h2>
-                    <p>Select rooms available for the examination</p>
+                    <p>Select rooms in bulk or find a specific room.</p>
                 </div>
 
-                <div class="option-grid" id="roomOptions">
+                <div class="selection-search"><label for="roomSearch">Search rooms</label><input type="search" id="roomSearch" placeholder="Search room number..."></div>
+                <div class="bulk-actions"><label class="select-all-label"><input type="checkbox" id="allRooms"> Select All Rooms</label><button type="button" class="secondary compact" id="selectShownRooms">Select Shown</button><button type="button" class="text-button" id="clearRooms">Clear All</button><span id="roomCount" class="selection-count" aria-live="polite"></span></div>
+                <p id="roomNoMatches" class="note" hidden>No rooms match your search.</p>
+                <div class="option-grid selection-list" id="roomOptions">
 
                     <label class="option-card">
 
@@ -284,6 +293,7 @@
             </section>
 
 
+            <div id="selectionSummary" class="selection-summary" aria-live="polite">Choose classes and rooms to check capacity.</div>
             <div class="button-container">
 
                 <button type="submit">
@@ -317,6 +327,8 @@
     </footer>
 
 
+    <script src="session.js"></script>
+    <script src="js/selection.js"></script>
     <script src="js/demo-data.js"></script>
     <script src="js/allocator.js"></script>
     <script src="script.js"></script>

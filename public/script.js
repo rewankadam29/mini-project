@@ -27,6 +27,14 @@ function clearResults() {
 function showCatalog() {
   clearResults();
   const divisions = [...new Set(catalog.students.map(s => s.division))].sort();
+  document.getElementById('divisionSearch').value = '';
+  document.getElementById('roomSearch').value = '';
+  const departmentFilter = document.getElementById('departmentFilter');
+  departmentFilter.replaceChildren();
+  const allOption = element('option', 'All departments'); allOption.value = ''; departmentFilter.append(allOption);
+  for (const department of [...new Set(divisions.map(AdminSelection.department))].sort()) {
+    const option = element('option', department); option.value = department; departmentFilter.append(option);
+  }
   const divisionOptions = document.getElementById('divisionOptions');
   divisionOptions.replaceChildren();
   for (const division of divisions) {
@@ -47,6 +55,8 @@ function showCatalog() {
   }
   document.getElementById('dataSource').textContent = imported ? 'Imported CSV · browser allocation' : `${catalog.source} · ${serverMode ? 'backend allocation' : 'browser allocation'}`;
   document.getElementById('dataDetails').textContent = `${catalog.students.length} students, ${catalog.rooms.length} rooms. ${catalog.source === 'Sample data' ? 'Synthetic records for demonstration.' : imported ? 'Imported records are not saved to MySQL.' : 'Student and room records loaded from MySQL.'}`;
+  filterOptions();
+  updateSelection();
 }
 
 async function loadCatalog() {
@@ -56,6 +66,7 @@ async function loadCatalog() {
   if (location.protocol !== 'file:') {
     try {
       const response = await fetch('/api/catalog');
+      if (response.status === 401) { location.replace('/login.html'); return; }
       if (!response.ok) throw new Error('Could not load catalog');
       catalog = await response.json();
       serverMode = true;
@@ -71,7 +82,52 @@ async function loadCatalog() {
 
 function selected(name) { return [...form.querySelectorAll(`input[name="${name}"]:checked`)].map(n => n.value); }
 
-form.addEventListener('change', clearResults);
+function filterOptions() {
+  const query = document.getElementById('divisionSearch').value;
+  const department = document.getElementById('departmentFilter').value;
+  for (const label of document.querySelectorAll('#divisionOptions .option-card')) label.hidden = !AdminSelection.matchesDivision(label.querySelector('input').value, query, department);
+  const roomQuery = document.getElementById('roomSearch').value.trim().toLowerCase();
+  for (const label of document.querySelectorAll('#roomOptions .option-card')) label.hidden = !label.textContent.toLowerCase().includes(roomQuery);
+  document.getElementById('divisionNoMatches').hidden = [...document.querySelectorAll('#divisionOptions .option-card')].some(n => !n.hidden);
+  document.getElementById('roomNoMatches').hidden = [...document.querySelectorAll('#roomOptions .option-card')].some(n => !n.hidden);
+}
+
+function updateSelection() {
+  for (const [name, masterId, countId, noun] of [['division', 'allDivisions', 'divisionCount', 'classes'], ['room', 'allRooms', 'roomCount', 'rooms']]) {
+    const inputs = [...form.querySelectorAll(`input[name="${name}"]`)];
+    const chosen = inputs.filter(n => n.checked);
+    const hiddenChosen = chosen.filter(n => n.parentElement.hidden).length;
+    const master = document.getElementById(masterId);
+    master.checked = inputs.length > 0 && chosen.length === inputs.length;
+    master.indeterminate = chosen.length > 0 && chosen.length < inputs.length;
+    document.getElementById(countId).textContent = `${chosen.length} of ${inputs.length} ${noun} selected${hiddenChosen ? ` (${hiddenChosen} outside this filter)` : ''}`;
+    for (const input of inputs) input.parentElement.classList.toggle('is-selected', input.checked);
+  }
+  if (!catalog) return;
+  const totals = AdminSelection.totals(catalog.students, catalog.rooms, selected('division'), selected('room'));
+  const summary = document.getElementById('selectionSummary');
+  const ready = selected('division').length > 0 && selected('room').length > 0;
+  summary.textContent = ready ? `${totals.students} students · ${totals.capacity} available seats · ${totals.capacity >= totals.students ? `${totals.capacity - totals.students} spare seats` : `${totals.students - totals.capacity} more seats needed`}` : `${totals.students} students · ${totals.capacity} available seats. Choose at least one class and room.`;
+  summary.classList.toggle('capacity-error', ready && totals.students > totals.capacity);
+}
+
+function chooseBulk(name, action) {
+  const inputs = [...form.querySelectorAll(`input[name="${name}"]`)];
+  const chosen = AdminSelection.bulkSelection(inputs.map(n => n.value), selected(name), action, inputs.filter(n => !n.parentElement.hidden).map(n => n.value));
+  for (const input of inputs) input.checked = chosen.has(input.value);
+  clearResults(); updateSelection();
+}
+document.getElementById('allDivisions').addEventListener('change', event => chooseBulk('division', event.target.checked ? 'all' : 'clear'));
+document.getElementById('allRooms').addEventListener('change', event => chooseBulk('room', event.target.checked ? 'all' : 'clear'));
+document.getElementById('selectShownDivisions').addEventListener('click', () => chooseBulk('division', 'shown'));
+document.getElementById('selectShownRooms').addEventListener('click', () => chooseBulk('room', 'shown'));
+document.getElementById('clearDivisions').addEventListener('click', () => chooseBulk('division', 'clear'));
+document.getElementById('clearRooms').addEventListener('click', () => chooseBulk('room', 'clear'));
+for (const id of ['divisionSearch', 'departmentFilter', 'roomSearch']) document.getElementById(id).addEventListener('input', () => { filterOptions(); updateSelection(); });
+form.addEventListener('change', event => {
+  if (['divisionSearch', 'departmentFilter', 'roomSearch'].includes(event.target.id)) return;
+  clearResults(); updateSelection();
+});
 form.addEventListener('submit', async event => {
   event.preventDefault();
   clearResults();
@@ -94,6 +150,7 @@ form.addEventListener('submit', async event => {
     if (serverMode && !imported) {
       const response = await fetch('/api/arrangements', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) });
       const result = await response.json();
+      if (response.status === 401) { location.replace('/login.html'); return; }
       if (!response.ok) throw new Error(result.error || 'Generation failed');
       plan = result;
     } else {
@@ -183,6 +240,7 @@ document.getElementById('demoButton').addEventListener('click', () => {
   [...form.querySelectorAll('[name="division"]')].forEach(n => { n.checked = true; });
   [...form.querySelectorAll('[name="room"]')].forEach((n, i) => { n.checked = i < 3; });
   form.querySelector('[value="shuffled"]').checked = true;
+  updateSelection();
   clearResults(); message('Demo inputs loaded. Click Generate Seating Arrangement.');
 });
 
