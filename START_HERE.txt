@@ -1,0 +1,24 @@
+EXAM SEATING GENERATOR — PHASE 3
+
+1. Extract the entire ZIP before opening files.
+2. Open public/index.html in Chrome or Edge.
+3. Click Load Demo Inputs.
+4. Click Generate Seating Arrangement.
+5. Switch to Column-Based Seating and generate again.
+
+For the backend demonstration:
+Open a terminal in this folder and run: npm run demo
+Open http://localhost:3000
+Node.js 20.12 or newer is required. No npm install is needed for this mode.
+
+Before tomorrow:
+Read docs/PHASE3_DEMO.md for the demonstration and viva answers.
+Read docs/GIT_WORKFLOW.md to push the actual repository to your GitHub.
+The ZIP includes Git history, but no GitHub remote is connected yet.
+The local history is authored by Codex for this preparation session.
+Read README.md for Express and MySQL setup.
+Run npm test — 20 automated checks should pass.
+
+MySQL persistence and the installed Express adapter need a local integration check.
+Check browser layout, CSV export and Print / Save PDF once on your own laptop.
+The fallback demo uses synthetic data and memory storage.

@@ -1,0 +1,844 @@
+{
+  "seats": [
+    {
+      "student_id": "1001",
+      "name": "Sample CE-A Student 1",
+      "roll_no": 1,
+      "division": "CE-A",
+      "room_id": "101",
+      "row": 1,
+      "column": 1,
+      "seat_number": 1
+    },
+    {
+      "student_id": "1002",
+      "name": "Sample CE-A Student 2",
+      "roll_no": 2,
+      "division": "CE-A",
+      "room_id": "101",
+      "row": 2,
+      "column": 1,
+      "seat_number": 7
+    },
+    {
+      "student_id": "1003",
+      "name": "Sample CE-A Student 3",
+      "roll_no": 3,
+      "division": "CE-A",
+      "room_id": "101",
+      "row": 3,
+      "column": 1,
+      "seat_number": 13
+    },
+    {
+      "student_id": "1004",
+      "name": "Sample CE-A Student 4",
+      "roll_no": 4,
+      "division": "CE-A",
+      "room_id": "101",
+      "row": 4,
+      "column": 1,
+      "seat_number": 19
+    },
+    {
+      "student_id": "1005",
+      "name": "Sample CE-A Student 5",
+      "roll_no": 5,
+      "division": "CE-A",
+      "room_id": "101",
+      "row": 5,
+      "column": 1,
+      "seat_number": 25
+    },
+    {
+      "student_id": "2001",
+      "name": "Sample CE-B Student 1",
+      "roll_no": 1,
+      "division": "CE-B",
+      "room_id": "101",
+      "row": 1,
+      "column": 2,
+      "seat_number": 2
+    },
+    {
+      "student_id": "2002",
+      "name": "Sample CE-B Student 2",
+      "roll_no": 2,
+      "division": "CE-B",
+      "room_id": "101",
+      "row": 2,
+      "column": 2,
+      "seat_number": 8
+    },
+    {
+      "student_id": "2003",
+      "name": "Sample CE-B Student 3",
+      "roll_no": 3,
+      "division": "CE-B",
+      "room_id": "101",
+      "row": 3,
+      "column": 2,
+      "seat_number": 14
+    },
+    {
+      "student_id": "2004",
+      "name": "Sample CE-B Student 4",
+      "roll_no": 4,
+      "division": "CE-B",
+      "room_id": "101",
+      "row": 4,
+      "column": 2,
+      "seat_number": 20
+    },
+    {
+      "student_id": "2005",
+      "name": "Sample CE-B Student 5",
+      "roll_no": 5,
+      "division": "CE-B",
+      "room_id": "101",
+      "row": 5,
+      "column": 2,
+      "seat_number": 26
+    },
+    {
+      "student_id": "4001",
+      "name": "Sample EXTC-A Student 1",
+      "roll_no": 1,
+      "division": "EXTC-A",
+      "room_id": "101",
+      "row": 1,
+      "column": 3,
+      "seat_number": 3
+    },
+    {
+      "student_id": "4002",
+      "name": "Sample EXTC-A Student 2",
+      "roll_no": 2,
+      "division": "EXTC-A",
+      "room_id": "101",
+      "row": 2,
+      "column": 3,
+      "seat_number": 9
+    },
+    {
+      "student_id": "4003",
+      "name": "Sample EXTC-A Student 3",
+      "roll_no": 3,
+      "division": "EXTC-A",
+      "room_id": "101",
+      "row": 3,
+      "column": 3,
+      "seat_number": 15
+    },
+    {
+      "student_id": "4004",
+      "name": "Sample EXTC-A Student 4",
+      "roll_no": 4,
+      "division": "EXTC-A",
+      "room_id": "101",
+      "row": 4,
+      "column": 3,
+      "seat_number": 21
+    },
+    {
+      "student_id": "4005",
+      "name": "Sample EXTC-A Student 5",
+      "roll_no": 5,
+      "division": "EXTC-A",
+      "room_id": "101",
+      "row": 5,
+      "column": 3,
+      "seat_number": 27
+    },
+    {
+      "student_id": "3001",
+      "name": "Sample IT-A Student 1",
+      "roll_no": 1,
+      "division": "IT-A",
+      "room_id": "101",
+      "row": 1,
+      "column": 4,
+      "seat_number": 4
+    },
+    {
+      "student_id": "3002",
+      "name": "Sample IT-A Student 2",
+      "roll_no": 2,
+      "division": "IT-A",
+      "room_id": "101",
+      "row": 2,
+      "column": 4,
+      "seat_number": 10
+    },
+    {
+      "student_id": "3003",
+      "name": "Sample IT-A Student 3",
+      "roll_no": 3,
+      "division": "IT-A",
+      "room_id": "101",
+      "row": 3,
+      "column": 4,
+      "seat_number": 16
+    },
+    {
+      "student_id": "3004",
+      "name": "Sample IT-A Student 4",
+      "roll_no": 4,
+      "division": "IT-A",
+      "room_id": "101",
+      "row": 4,
+      "column": 4,
+      "seat_number": 22
+    },
+    {
+      "student_id": "3005",
+      "name": "Sample IT-A Student 5",
+      "roll_no": 5,
+      "division": "IT-A",
+      "room_id": "101",
+      "row": 5,
+      "column": 4,
+      "seat_number": 28
+    },
+    {
+      "student_id": "1006",
+      "name": "Sample CE-A Student 6",
+      "roll_no": 6,
+      "division": "CE-A",
+      "room_id": "101",
+      "row": 1,
+      "column": 5,
+      "seat_number": 5
+    },
+    {
+      "student_id": "1007",
+      "name": "Sample CE-A Student 7",
+      "roll_no": 7,
+      "division": "CE-A",
+      "room_id": "101",
+      "row": 2,
+      "column": 5,
+      "seat_number": 11
+    },
+    {
+      "student_id": "1008",
+      "name": "Sample CE-A Student 8",
+      "roll_no": 8,
+      "division": "CE-A",
+      "room_id": "101",
+      "row": 3,
+      "column": 5,
+      "seat_number": 17
+    },
+    {
+      "student_id": "1009",
+      "name": "Sample CE-A Student 9",
+      "roll_no": 9,
+      "division": "CE-A",
+      "room_id": "101",
+      "row": 4,
+      "column": 5,
+      "seat_number": 23
+    },
+    {
+      "student_id": "1010",
+      "name": "Sample CE-A Student 10",
+      "roll_no": 10,
+      "division": "CE-A",
+      "room_id": "101",
+      "row": 5,
+      "column": 5,
+      "seat_number": 29
+    },
+    {
+      "student_id": "2006",
+      "name": "Sample CE-B Student 6",
+      "roll_no": 6,
+      "division": "CE-B",
+      "room_id": "101",
+      "row": 1,
+      "column": 6,
+      "seat_number": 6
+    },
+    {
+      "student_id": "2007",
+      "name": "Sample CE-B Student 7",
+      "roll_no": 7,
+      "division": "CE-B",
+      "room_id": "101",
+      "row": 2,
+      "column": 6,
+      "seat_number": 12
+    },
+    {
+      "student_id": "2008",
+      "name": "Sample CE-B Student 8",
+      "roll_no": 8,
+      "division": "CE-B",
+      "room_id": "101",
+      "row": 3,
+      "column": 6,
+      "seat_number": 18
+    },
+    {
+      "student_id": "2009",
+      "name": "Sample CE-B Student 9",
+      "roll_no": 9,
+      "division": "CE-B",
+      "room_id": "101",
+      "row": 4,
+      "column": 6,
+      "seat_number": 24
+    },
+    {
+      "student_id": "2010",
+      "name": "Sample CE-B Student 10",
+      "roll_no": 10,
+      "division": "CE-B",
+      "room_id": "101",
+      "row": 5,
+      "column": 6,
+      "seat_number": 30
+    },
+    {
+      "student_id": "4006",
+      "name": "Sample EXTC-A Student 6",
+      "roll_no": 6,
+      "division": "EXTC-A",
+      "room_id": "102",
+      "row": 1,
+      "column": 1,
+      "seat_number": 1
+    },
+    {
+      "student_id": "4007",
+      "name": "Sample EXTC-A Student 7",
+      "roll_no": 7,
+      "division": "EXTC-A",
+      "room_id": "102",
+      "row": 2,
+      "column": 1,
+      "seat_number": 7
+    },
+    {
+      "student_id": "4008",
+      "name": "Sample EXTC-A Student 8",
+      "roll_no": 8,
+      "division": "EXTC-A",
+      "room_id": "102",
+      "row": 3,
+      "column": 1,
+      "seat_number": 13
+    },
+    {
+      "student_id": "4009",
+      "name": "Sample EXTC-A Student 9",
+      "roll_no": 9,
+      "division": "EXTC-A",
+      "room_id": "102",
+      "row": 4,
+      "column": 1,
+      "seat_number": 19
+    },
+    {
+      "student_id": "4010",
+      "name": "Sample EXTC-A Student 10",
+      "roll_no": 10,
+      "division": "EXTC-A",
+      "room_id": "102",
+      "row": 5,
+      "column": 1,
+      "seat_number": 25
+    },
+    {
+      "student_id": "3006",
+      "name": "Sample IT-A Student 6",
+      "roll_no": 6,
+      "division": "IT-A",
+      "room_id": "102",
+      "row": 1,
+      "column": 2,
+      "seat_number": 2
+    },
+    {
+      "student_id": "3007",
+      "name": "Sample IT-A Student 7",
+      "roll_no": 7,
+      "division": "IT-A",
+      "room_id": "102",
+      "row": 2,
+      "column": 2,
+      "seat_number": 8
+    },
+    {
+      "student_id": "3008",
+      "name": "Sample IT-A Student 8",
+      "roll_no": 8,
+      "division": "IT-A",
+      "room_id": "102",
+      "row": 3,
+      "column": 2,
+      "seat_number": 14
+    },
+    {
+      "student_id": "3009",
+      "name": "Sample IT-A Student 9",
+      "roll_no": 9,
+      "division": "IT-A",
+      "room_id": "102",
+      "row": 4,
+      "column": 2,
+      "seat_number": 20
+    },
+    {
+      "student_id": "3010",
+      "name": "Sample IT-A Student 10",
+      "roll_no": 10,
+      "division": "IT-A",
+      "room_id": "102",
+      "row": 5,
+      "column": 2,
+      "seat_number": 26
+    },
+    {
+      "student_id": "1011",
+      "name": "Sample CE-A Student 11",
+      "roll_no": 11,
+      "division": "CE-A",
+      "room_id": "102",
+      "row": 1,
+      "column": 3,
+      "seat_number": 3
+    },
+    {
+      "student_id": "1012",
+      "name": "Sample CE-A Student 12",
+      "roll_no": 12,
+      "division": "CE-A",
+      "room_id": "102",
+      "row": 2,
+      "column": 3,
+      "seat_number": 9
+    },
+    {
+      "student_id": "1013",
+      "name": "Sample CE-A Student 13",
+      "roll_no": 13,
+      "division": "CE-A",
+      "room_id": "102",
+      "row": 3,
+      "column": 3,
+      "seat_number": 15
+    },
+    {
+      "student_id": "1014",
+      "name": "Sample CE-A Student 14",
+      "roll_no": 14,
+      "division": "CE-A",
+      "room_id": "102",
+      "row": 4,
+      "column": 3,
+      "seat_number": 21
+    },
+    {
+      "student_id": "1015",
+      "name": "Sample CE-A Student 15",
+      "roll_no": 15,
+      "division": "CE-A",
+      "room_id": "102",
+      "row": 5,
+      "column": 3,
+      "seat_number": 27
+    },
+    {
+      "student_id": "2011",
+      "name": "Sample CE-B Student 11",
+      "roll_no": 11,
+      "division": "CE-B",
+      "room_id": "102",
+      "row": 1,
+      "column": 4,
+      "seat_number": 4
+    },
+    {
+      "student_id": "2012",
+      "name": "Sample CE-B Student 12",
+      "roll_no": 12,
+      "division": "CE-B",
+      "room_id": "102",
+      "row": 2,
+      "column": 4,
+      "seat_number": 10
+    },
+    {
+      "student_id": "2013",
+      "name": "Sample CE-B Student 13",
+      "roll_no": 13,
+      "division": "CE-B",
+      "room_id": "102",
+      "row": 3,
+      "column": 4,
+      "seat_number": 16
+    },
+    {
+      "student_id": "2014",
+      "name": "Sample CE-B Student 14",
+      "roll_no": 14,
+      "division": "CE-B",
+      "room_id": "102",
+      "row": 4,
+      "column": 4,
+      "seat_number": 22
+    },
+    {
+      "student_id": "2015",
+      "name": "Sample CE-B Student 15",
+      "roll_no": 15,
+      "division": "CE-B",
+      "room_id": "102",
+      "row": 5,
+      "column": 4,
+      "seat_number": 28
+    },
+    {
+      "student_id": "4011",
+      "name": "Sample EXTC-A Student 11",
+      "roll_no": 11,
+      "division": "EXTC-A",
+      "room_id": "102",
+      "row": 1,
+      "column": 5,
+      "seat_number": 5
+    },
+    {
+      "student_id": "4012",
+      "name": "Sample EXTC-A Student 12",
+      "roll_no": 12,
+      "division": "EXTC-A",
+      "room_id": "102",
+      "row": 2,
+      "column": 5,
+      "seat_number": 11
+    },
+    {
+      "student_id": "4013",
+      "name": "Sample EXTC-A Student 13",
+      "roll_no": 13,
+      "division": "EXTC-A",
+      "room_id": "102",
+      "row": 3,
+      "column": 5,
+      "seat_number": 17
+    },
+    {
+      "student_id": "4014",
+      "name": "Sample EXTC-A Student 14",
+      "roll_no": 14,
+      "division": "EXTC-A",
+      "room_id": "102",
+      "row": 4,
+      "column": 5,
+      "seat_number": 23
+    },
+    {
+      "student_id": "4015",
+      "name": "Sample EXTC-A Student 15",
+      "roll_no": 15,
+      "division": "EXTC-A",
+      "room_id": "102",
+      "row": 5,
+      "column": 5,
+      "seat_number": 29
+    },
+    {
+      "student_id": "3011",
+      "name": "Sample IT-A Student 11",
+      "roll_no": 11,
+      "division": "IT-A",
+      "room_id": "102",
+      "row": 1,
+      "column": 6,
+      "seat_number": 6
+    },
+    {
+      "student_id": "3012",
+      "name": "Sample IT-A Student 12",
+      "roll_no": 12,
+      "division": "IT-A",
+      "room_id": "102",
+      "row": 2,
+      "column": 6,
+      "seat_number": 12
+    },
+    {
+      "student_id": "3013",
+      "name": "Sample IT-A Student 13",
+      "roll_no": 13,
+      "division": "IT-A",
+      "room_id": "102",
+      "row": 3,
+      "column": 6,
+      "seat_number": 18
+    },
+    {
+      "student_id": "3014",
+      "name": "Sample IT-A Student 14",
+      "roll_no": 14,
+      "division": "IT-A",
+      "room_id": "102",
+      "row": 4,
+      "column": 6,
+      "seat_number": 24
+    },
+    {
+      "student_id": "3015",
+      "name": "Sample IT-A Student 15",
+      "roll_no": 15,
+      "division": "IT-A",
+      "room_id": "102",
+      "row": 5,
+      "column": 6,
+      "seat_number": 30
+    },
+    {
+      "student_id": "1016",
+      "name": "Sample CE-A Student 16",
+      "roll_no": 16,
+      "division": "CE-A",
+      "room_id": "103",
+      "row": 1,
+      "column": 1,
+      "seat_number": 1
+    },
+    {
+      "student_id": "1017",
+      "name": "Sample CE-A Student 17",
+      "roll_no": 17,
+      "division": "CE-A",
+      "room_id": "103",
+      "row": 2,
+      "column": 1,
+      "seat_number": 7
+    },
+    {
+      "student_id": "1018",
+      "name": "Sample CE-A Student 18",
+      "roll_no": 18,
+      "division": "CE-A",
+      "room_id": "103",
+      "row": 3,
+      "column": 1,
+      "seat_number": 13
+    },
+    {
+      "student_id": "1019",
+      "name": "Sample CE-A Student 19",
+      "roll_no": 19,
+      "division": "CE-A",
+      "room_id": "103",
+      "row": 4,
+      "column": 1,
+      "seat_number": 19
+    },
+    {
+      "student_id": "1020",
+      "name": "Sample CE-A Student 20",
+      "roll_no": 20,
+      "division": "CE-A",
+      "room_id": "103",
+      "row": 5,
+      "column": 1,
+      "seat_number": 25
+    },
+    {
+      "student_id": "2016",
+      "name": "Sample CE-B Student 16",
+      "roll_no": 16,
+      "division": "CE-B",
+      "room_id": "103",
+      "row": 1,
+      "column": 2,
+      "seat_number": 2
+    },
+    {
+      "student_id": "2017",
+      "name": "Sample CE-B Student 17",
+      "roll_no": 17,
+      "division": "CE-B",
+      "room_id": "103",
+      "row": 2,
+      "column": 2,
+      "seat_number": 8
+    },
+    {
+      "student_id": "2018",
+      "name": "Sample CE-B Student 18",
+      "roll_no": 18,
+      "division": "CE-B",
+      "room_id": "103",
+      "row": 3,
+      "column": 2,
+      "seat_number": 14
+    },
+    {
+      "student_id": "2019",
+      "name": "Sample CE-B Student 19",
+      "roll_no": 19,
+      "division": "CE-B",
+      "room_id": "103",
+      "row": 4,
+      "column": 2,
+      "seat_number": 20
+    },
+    {
+      "student_id": "2020",
+      "name": "Sample CE-B Student 20",
+      "roll_no": 20,
+      "division": "CE-B",
+      "room_id": "103",
+      "row": 5,
+      "column": 2,
+      "seat_number": 26
+    },
+    {
+      "student_id": "4016",
+      "name": "Sample EXTC-A Student 16",
+      "roll_no": 16,
+      "division": "EXTC-A",
+      "room_id": "103",
+      "row": 1,
+      "column": 3,
+      "seat_number": 3
+    },
+    {
+      "student_id": "4017",
+      "name": "Sample EXTC-A Student 17",
+      "roll_no": 17,
+      "division": "EXTC-A",
+      "room_id": "103",
+      "row": 2,
+      "column": 3,
+      "seat_number": 9
+    },
+    {
+      "student_id": "4018",
+      "name": "Sample EXTC-A Student 18",
+      "roll_no": 18,
+      "division": "EXTC-A",
+      "room_id": "103",
+      "row": 3,
+      "column": 3,
+      "seat_number": 15
+    },
+    {
+      "student_id": "4019",
+      "name": "Sample EXTC-A Student 19",
+      "roll_no": 19,
+      "division": "EXTC-A",
+      "room_id": "103",
+      "row": 4,
+      "column": 3,
+      "seat_number": 21
+    },
+    {
+      "student_id": "4020",
+      "name": "Sample EXTC-A Student 20",
+      "roll_no": 20,
+      "division": "EXTC-A",
+      "room_id": "103",
+      "row": 5,
+      "column": 3,
+      "seat_number": 27
+    },
+    {
+      "student_id": "3016",
+      "name": "Sample IT-A Student 16",
+      "roll_no": 16,
+      "division": "IT-A",
+      "room_id": "103",
+      "row": 1,
+      "column": 4,
+      "seat_number": 4
+    },
+    {
+      "student_id": "3017",
+      "name": "Sample IT-A Student 17",
+      "roll_no": 17,
+      "division": "IT-A",
+      "room_id": "103",
+      "row": 2,
+      "column": 4,
+      "seat_number": 10
+    },
+    {
+      "student_id": "3018",
+      "name": "Sample IT-A Student 18",
+      "roll_no": 18,
+      "division": "IT-A",
+      "room_id": "103",
+      "row": 3,
+      "column": 4,
+      "seat_number": 16
+    },
+    {
+      "student_id": "3019",
+      "name": "Sample IT-A Student 19",
+      "roll_no": 19,
+      "division": "IT-A",
+      "room_id": "103",
+      "row": 4,
+      "column": 4,
+      "seat_number": 22
+    },
+    {
+      "student_id": "3020",
+      "name": "Sample IT-A Student 20",
+      "roll_no": 20,
+      "division": "IT-A",
+      "room_id": "103",
+      "row": 5,
+      "column": 4,
+      "seat_number": 28
+    }
+  ],
+  "rooms": [
+    {
+      "room_id": "101",
+      "room_number": "101",
+      "rows": 5,
+      "columns": 6,
+      "capacity": 30
+    },
+    {
+      "room_id": "102",
+      "room_number": "102",
+      "rows": 5,
+      "columns": 6,
+      "capacity": 30
+    },
+    {
+      "room_id": "103",
+      "room_number": "103",
+      "rows": 5,
+      "columns": 6,
+      "capacity": 30
+    }
+  ],
+  "strategy": "column",
+  "stats": {
+    "students": 80,
+    "capacity": 90,
+    "emptySeats": 10,
+    "vertices": 18,
+    "edges": 15,
+    "states": 17,
+    "backtracks": 0,
+    "elapsedMs": 0
+  },
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "studentsSeated": 80,
+    "conflicts": 0
+  }
+}
