@@ -15,13 +15,18 @@
     <header class="header">
         <div class="header-content">
             <h1>Exam Seating Arrangement Generator</h1>
-            <p>Generate organized and conflict-free examination seating plans</p>
+            <p>Phase 3 implementation · Two graph-based seating strategies</p>
         </div>
     </header>
 
 
     <main class="container">
 
+        <section class="card setup-bar">
+            <div><strong id="dataSource">Loading data</strong><p id="dataDetails" class="note"></p></div>
+            <button type="button" id="demoButton" class="secondary">Load Demo Inputs</button>
+        </section>
+        <div id="message" class="message" role="status" aria-live="polite" hidden></div>
         <form id="seatingForm" class="seating-form">
 
             <section class="card">
@@ -93,7 +98,7 @@
                     <p>Select divisions appearing for the examination</p>
                 </div>
 
-                <div class="option-grid">
+                <div class="option-grid" id="divisionOptions">
 
                     <label class="option-card">
 
@@ -158,7 +163,7 @@
                     <p>Select rooms available for the examination</p>
                 </div>
 
-                <div class="option-grid">
+                <div class="option-grid" id="roomOptions">
 
                     <label class="option-card">
 
@@ -214,7 +219,7 @@
                 </div>
 
                 <p class="note">
-                    Room rows, columns and capacity are fetched from the database.
+                    Shuffled: no matching horizontal or vertical neighbours. Column: one division per column, adjacent columns must differ. Empty seats may be required.
                 </p>
 
             </section>
@@ -289,6 +294,21 @@
 
         </form>
 
+        <details class="card import-section">
+            <summary>Use your own student CSV</summary>
+            <p class="note">Columns: student_id,name,roll_no,division. The ZIP includes a sample CSV. This import stays in this browser session and uses the local allocator, even when the server is running.</p>
+            <label for="studentCsv">Student CSV file</label>
+            <input type="file" id="studentCsv" accept=".csv,text/csv">
+            <button type="button" id="resetData" class="secondary">Restore Server or Sample Data</button>
+        </details>
+        <section id="results" class="card result-section" aria-label="Generated seating arrangement">
+            <div class="result-header"><div><h2>Seating Arrangement</h2><p id="examSummary"></p></div>
+                <div class="result-actions"><button type="button" id="csvButton">Download CSV</button><button type="button" id="pdfButton">Print / Save PDF</button></div></div>
+            <div id="statistics" class="statistics"></div>
+            <p id="validationSummary" class="validation"></p>
+            <div id="legend" class="legend"></div>
+            <div id="roomResults"></div>
+        </section>
     </main>
 
 
@@ -297,6 +317,8 @@
     </footer>
 
 
+    <script src="js/demo-data.js"></script>
+    <script src="js/allocator.js"></script>
     <script src="script.js"></script>
 
 </body>
