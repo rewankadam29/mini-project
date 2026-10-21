@@ -1,19 +1,9 @@
 const form = document.getElementById('seatingForm');
 
 let catalog;
-let serverMode = false;
-let imported = false;
 let currentPlan = null;
 let selectingRooms = false;
 
-const palette = [
-  '#e3edff',
-  '#ffe8d4',
-  '#def3e7',
-  '#f1e3fb',
-  '#fff5cc',
-  '#ddf4f7'
-];
 
 function element(tag, text, className) {
   const node = document.createElement(tag);
@@ -289,7 +279,7 @@ async function autoSelectRooms() {
   const controls = [
     ...document.querySelectorAll(
       '#seatingForm input, #seatingForm select, ' +
-      '#seatingForm button, #demoButton, #studentCsv, #resetData'
+      '#seatingForm button, #studentCsv, #resetData, #roomForm button'
     )
   ];
 
@@ -452,53 +442,32 @@ function showCatalog() {
     roomOptions.append(label);
   }
 
-  document.getElementById('dataSource').textContent = imported
-    ? 'Imported CSV · browser allocation'
-    : `${catalog.source} · ${serverMode ? 'backend allocation' : 'browser allocation'}`;
-
-  document.getElementById('dataDetails').textContent =
-    `${catalog.students.length} students, ${catalog.rooms.length} rooms. ` +
-    (
-      catalog.source === 'Sample data'
-        ? 'Synthetic records for demonstration.'
-        : imported
-          ? 'Imported records are not saved to MySQL.'
-          : 'Student and room records loaded from MySQL.'
-    );
+  document.getElementById('dataSource').textContent = 'MySQL database';
+  document.getElementById('dataDetails').textContent = catalog.students.length + ' students, ' + catalog.rooms.length + ' rooms. Import students and add classrooms to begin.';
 
   filterOptions();
   updateSelection();
 }
 
+async function api(url, body) {
+  const response = await fetch(url, body === undefined ? { cache: 'no-store' } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (response.status === 401) { location.replace('/login.html'); throw new Error('Please sign in.'); }
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Request failed.');
+  return data;
+}
 async function loadCatalog() {
-  imported = false;
-  serverMode = false;
-  catalog = { ...DemoData };
-
-  if (location.protocol !== 'file:') {
-    try {
-      const response = await fetch('/api/catalog');
-
-      if (response.status === 401) {
-        location.replace('/login.html');
-        return;
-      }
-
-      if (!response.ok) throw new Error('Could not load catalog');
-
-      catalog = await response.json();
-      serverMode = true;
-    } catch (error) {
-      if (location.port === '3000') {
-        message(
-          'Backend catalog could not be loaded. Check the server and database settings. Sample data is available for a browser-only demo.',
-          true
-        );
-      }
-    }
+  try {
+    catalog = await api('/api/catalog');
+    showCatalog();
+    return true;
+  } catch (error) {
+    catalog = { students: [], rooms: [] };
+    showCatalog();
+    document.getElementById('dataSource').textContent = 'Database unavailable';
+    message(error.message, true);
+    return false;
   }
-
-  showCatalog();
 }
 
 function filterOptions() {
@@ -742,51 +711,10 @@ form.addEventListener('submit', async event => {
   button.textContent = 'Generating...';
 
   try {
-    let plan;
-
-    if (serverMode && !imported) {
-      const response = await fetch('/api/arrangements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request)
-      });
-
-      const result = await response.json();
-
-      if (response.status === 401) {
-        location.replace('/login.html');
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Generation failed');
-      }
-
-      plan = result;
-    } else {
-      await new Promise(resolve => setTimeout(resolve, 25));
-
-      const students = catalog.students.filter(
-        student => request.divisions.includes(student.division)
-      );
-
-      const rooms = catalog.rooms.filter(
-        room => request.rooms.includes(String(room.room_id))
-      );
-
-      plan = SeatingAllocator.allocate(
-        students,
-        rooms,
-        request.seatingType
-      );
-
-      plan.exam = request;
-      plan.source = imported ? 'Imported CSV' : 'Sample data';
-      plan.persistence = 'Browser memory only';
-    }
-
+    const plan = await api('/api/arrangements', request);
     currentPlan = plan;
     render(plan);
+    await loadHistory();
 
     message(
       `All ${plan.stats.students} students seated. ${plan.persistence}.`
@@ -837,26 +765,7 @@ function render(plan) {
     `Graph: ${plan.stats.vertices} vertices, ${plan.stats.edges} edges. ` +
     `Backtracks: ${plan.stats.backtracks}.`;
 
-  const divisions = [
-    ...new Set(plan.seats.map(student => student.division))
-  ].sort();
-
-  const colors = new Map(
-    divisions.map((division, i) => [
-      division,
-      palette[i % palette.length]
-    ])
-  );
-
-  const legend = document.getElementById('legend');
-  legend.replaceChildren();
-
-  for (const division of divisions) {
-    const item = element('span', division);
-    item.style.backgroundColor = colors.get(division);
-    legend.append(item);
-  }
-
+  document.getElementById('legend').replaceChildren();
   const result = document.getElementById('roomResults');
   result.replaceChildren();
 
@@ -867,6 +776,9 @@ function render(plan) {
 
     const section = element('section', undefined, 'room-result');
 
+    section.append(element('h3', 'Sardar Patel Institute of Technology'),
+      element('h4', 'EXAMINATION SEATING ARRANGEMENT'),
+      element('p', plan.exam.examName + ' | Date: ' + date + ' | Session: ' + plan.exam.examTime));
     section.append(
       element(
         'h3',
@@ -875,6 +787,8 @@ function render(plan) {
       element('p', 'FRONT / BLACKBOARD', 'front-label')
     );
 
+    for (let firstColumn = 1; firstColumn <= room.columns; firstColumn += 8) {
+    const lastColumn = Math.min(room.columns, firstColumn + 7);
     const scroll = element('div', undefined, 'table-scroll');
     const table = element('table', undefined, 'seating-grid');
 
@@ -889,7 +803,7 @@ function render(plan) {
     const header = element('tr');
     header.append(element('th', 'Row'));
 
-    for (let column = 1; column <= room.columns; column++) {
+    for (let column = firstColumn; column <= lastColumn; column++) {
       header.append(element('th', `Column ${column}`));
     }
 
@@ -905,7 +819,7 @@ function render(plan) {
       rowHeader.scope = 'row';
       row.append(rowHeader);
 
-      for (let column = 1; column <= room.columns; column++) {
+      for (let column = firstColumn; column <= lastColumn; column++) {
         const cell = element('td');
         const position =
           (rowNumber - 1) * room.columns + column;
@@ -915,12 +829,11 @@ function render(plan) {
         );
 
         if (student) {
-          cell.style.backgroundColor = colors.get(student.division);
 
           cell.append(
             element('strong', student.division),
             element('span', `Roll ${student.roll_no}`),
-            element('small', `ID ${student.student_id}`)
+            element('small', `ID ${student.student_id} · Seat ${student.seat_number}`)
           );
 
           cell.title =
@@ -944,6 +857,7 @@ function render(plan) {
     table.append(body);
     scroll.append(table);
     section.append(scroll);
+    }
 
     const details = element('details', undefined, 'roster');
     details.append(element('summary', 'Student allocation list'));
@@ -990,46 +904,12 @@ function render(plan) {
     list.append(rows);
     details.append(list);
     section.append(details);
+    section.append(element('p', 'Invigilator signature: ____________________    Date: ______________', 'signature'));
     result.append(section);
   }
 
   document.getElementById('results').style.display = 'block';
 }
-
-document.getElementById('demoButton').addEventListener(
-  'click',
-  async () => {
-    document.getElementById('examName').value =
-      'Semester V Examination';
-
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    document.getElementById('examDate').value =
-      `${tomorrow.getFullYear()}-` +
-      `${String(tomorrow.getMonth() + 1).padStart(2, '0')}-` +
-      `${String(tomorrow.getDate()).padStart(2, '0')}`;
-
-    document.getElementById('examTime').value = '10:00';
-
-    for (const input of form.querySelectorAll('[name="division"]')) {
-      input.checked = true;
-    }
-
-    document.getElementById('divisionSearch').value = '';
-    document.getElementById('departmentFilter').value = '';
-    document.getElementById('roomSearch').value = '';
-    document.getElementById('floorFilter').value = '';
-
-    form.querySelector('[value="shuffled"]').checked = true;
-
-    filterOptions();
-    updateSelection();
-    clearResults();
-
-    await autoSelectRooms();
-  }
-);
 
 function csvCell(value) {
   let text = String(value ?? '');
@@ -1138,6 +1018,7 @@ document.getElementById('studentCsv').addEventListener(
   async event => {
     const file = event.target.files[0];
     if (!file) return;
+    event.target.disabled = true;
 
     try {
       if (file.size > 1000000) {
@@ -1208,23 +1089,14 @@ document.getElementById('studentCsv').addEventListener(
         );
       }
 
-      catalog = {
-        ...catalog,
-        students,
-        source: 'Imported CSV'
-      };
-
-      imported = true;
-      showCatalog();
-
-      message(
-        `Imported ${students.length} students. Select divisions and rooms again.`
-      );
+      const saved = await api('/api/students', { students: students.map(s => ({ ...s, roll_no: Number(s.roll_no) })) });
+      if (await loadCatalog()) message('Saved ' + saved.created + ' students to MySQL. Select divisions and rooms again.');
     } catch (error) {
       message(error.message, true);
     }
 
     event.target.value = '';
+    event.target.disabled = false;
   }
 );
 
@@ -1236,5 +1108,38 @@ document.getElementById('resetData').addEventListener(
   }
 );
 
+document.getElementById('roomForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  const button = event.target.querySelector('button');
+  button.disabled = true;
+  try {
+    const room = Object.fromEntries(new FormData(event.target));
+    for (const key of ['rows','columns','capacity']) room[key] = Number(room[key]);
+    await api('/api/rooms', room);
+    event.target.reset();
+    if (await loadCatalog()) message('Classroom saved to MySQL.');
+  } catch (error) { message(error.message, true); }
+  finally { button.disabled = false; }
+});
+async function loadHistory() {
+  const select = document.getElementById('savedPlan');
+  try {
+    const plans = await api('/api/arrangements');
+    select.replaceChildren(element('option', 'Choose a saved arrangement'));
+    select.firstChild.value = '';
+    for (const plan of plans) {
+      const option = element('option', '#' + plan.plan_id + ' · ' + plan.exam_name + ' · ' + plan.exam_date + ' ' + plan.exam_time);
+      option.value = plan.plan_id; select.append(option);
+    }
+  } catch (error) { message(error.message, true); }
+}
+document.getElementById('refreshHistory').addEventListener('click', loadHistory);
+document.getElementById('openPlan').addEventListener('click', async () => {
+  const id = document.getElementById('savedPlan').value;
+  if (!id) return message('Choose a saved arrangement.', true);
+  try { currentPlan = await api('/api/arrangements/' + id); render(currentPlan); message('Loaded saved arrangement #' + id); }
+  catch (error) { message(error.message, true); }
+});
 installRoomControls();
 loadCatalog();
+loadHistory();

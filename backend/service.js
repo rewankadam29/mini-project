@@ -13,6 +13,16 @@ function checkRequest(data) {
 function createService(repository) {
   return async function handle(method, path, data) {
     try {
+      if (method === 'POST' && path === '/api/students') {
+        const students = checkStudents(data?.students);
+        return { status: 201, body: { created: await repository.addStudents(students) } };
+      }
+      if (method === 'POST' && path === '/api/rooms') {
+        const room = checkRoom(data);
+        await repository.addRoom(room);
+        return { status: 201, body: room };
+      }
+      if (method === 'GET' && path === '/api/arrangements') return { status: 200, body: await repository.history() };
       if (method === 'GET' && path === '/api/catalog') return { status: 200, body: await repository.catalog() };
       if (method === 'POST' && path === '/api/arrangements') {
         checkRequest(data);
@@ -25,7 +35,7 @@ function createService(repository) {
         const plan = allocate(students, rooms, data.seatingType);
         plan.exam = { ...data, examName: data.examName.trim() };
         plan.source = catalog.source;
-        plan.persistence = catalog.source === 'Sample data' ? 'Saved in server memory until restart' : 'Saved to MySQL';
+        plan.persistence = 'Saved to MySQL';
         const planId = await repository.save(plan);
         return { status: 201, body: { ...plan, planId } };
       }
@@ -37,9 +47,33 @@ function createService(repository) {
       return { status: 404, body: { error: 'API route not found.' } };
     } catch (error) {
       if (error instanceof AllocationError) return { status: error.code === 'INVALID_INPUT' ? 400 : 422, body: { code: error.code, error: error.message } };
+      if (error.code === 'ER_DUP_ENTRY') return { status: 409, body: { error: 'Duplicate student ID, division roll number, or room. No records from this request were added.' } };
       console.error('Backend operation failed:', error.message);
       return { status: 503, body: { code: 'STORAGE_ERROR', error: 'Could not read or save database records. Check the database setup. No successful save has been confirmed.' } };
     }
   };
 }
-module.exports = { createService, checkRequest };
+function text(value, max, label) {
+  if (typeof value !== 'string' || !value.trim() || value.trim().length > max) throw new AllocationError('INVALID_INPUT', label + ' is required and must be at most ' + max + ' characters.');
+  return value.trim();
+}
+function integer(value, max, label) {
+  if (!Number.isSafeInteger(value) || value < 1 || value > max) throw new AllocationError('INVALID_INPUT', label + ' must be an integer from 1 to ' + max + '.');
+  return value;
+}
+function checkStudents(students) {
+  if (!Array.isArray(students) || !students.length || students.length > 600) throw new AllocationError('INVALID_INPUT', 'Upload 1–600 students per request.');
+  const ids = new Set(), rolls = new Set();
+  return students.map(s => {
+    const row = { student_id: text(s?.student_id,40,'Student ID'), name: text(s?.name,120,'Name'), division: text(s?.division,40,'Division'), roll_no: integer(s?.roll_no,2147483647,'Roll number') };
+    const key = JSON.stringify([row.division.toLowerCase(),row.roll_no]);
+    if (ids.has(row.student_id.toLowerCase()) || rolls.has(key)) throw new AllocationError('INVALID_INPUT','Duplicate student ID or roll number in upload.');
+    ids.add(row.student_id.toLowerCase()); rolls.add(key); return row;
+  });
+}
+function checkRoom(data) {
+  const r = { room_id: text(data?.room_id,40,'Room ID'), room_number: text(data?.room_number,40,'Room number'), rows: integer(data?.rows,600,'Rows'), columns: integer(data?.columns,600,'Columns'), capacity: integer(data?.capacity,600,'Capacity') };
+  if (r.rows * r.columns > 600 || r.capacity > r.rows * r.columns) throw new AllocationError('INVALID_INPUT','Capacity must fit the grid; maximum 600 physical seats per room and generation request.');
+  return r;
+}
+module.exports = { createService, checkRequest, checkStudents, checkRoom };

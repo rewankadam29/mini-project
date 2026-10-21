@@ -1,8 +1,9 @@
 const crypto = require('node:crypto');
 
 function createAuth(options = {}) {
-  const username = options.username ?? process.env.ADMIN_USERNAME ?? 'admin';
-  const password = options.password ?? process.env.ADMIN_PASSWORD ?? 'Admin@123';
+  const username = options.username ?? process.env.ADMIN_USERNAME;
+  const password = options.password ?? process.env.ADMIN_PASSWORD;
+  if (!username || !password || username.length > 100 || password.length < 12 || password.length > 256) throw new Error('Set ADMIN_USERNAME and ADMIN_PASSWORD (12–256 characters) in .env.');
   const salt = crypto.randomBytes(16);
   const passwordHash = crypto.scryptSync(password, salt, 64);
   const sessions = new Map();
@@ -10,7 +11,6 @@ function createAuth(options = {}) {
   const now = options.now ?? Date.now;
   const ttl = options.ttl ?? 8 * 60 * 60 * 1000;
   const cookieName = 'seating_admin';
-  const demoCredentials = username === 'admin' && password === 'Admin@123';
 
   function token(headers = {}) {
     const cookie = headers.cookie || '';
@@ -27,7 +27,7 @@ function createAuth(options = {}) {
   }
   function handle(method, path, body, headers = {}, ip = 'local') {
     if (method !== 'GET' && headers.origin && headers.origin !== `http://${headers.host}` && headers.origin !== `https://${headers.host}`) return { status: 403, body: { error: 'Request origin is not allowed.' } };
-    if (method === 'GET' && path === '/api/auth/session') return { status: 200, body: { authenticated: !!session(headers), user: session(headers), demoCredentials } };
+    if (method === 'GET' && path === '/api/auth/session') return { status: 200, body: { authenticated: !!session(headers), user: session(headers) } };
     if (method === 'POST' && path === '/api/auth/login') {
       const previous = failures.get(ip);
       if (previous && previous.until > now() && previous.count >= 5) return { status: 429, body: { error: 'Too many incorrect attempts. Try again in 15 minutes.' } };

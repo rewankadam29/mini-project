@@ -15,7 +15,7 @@
     <header class="header">
         <div class="header-content admin-header"><div>
             <h1>Exam Seating Arrangement Generator</h1>
-            <p>Phase 3 implementation · Two graph-based seating strategies</p></div><div class="admin-account"><span>Admin: <strong id="adminName">Administrator</strong></span><button type="button" id="logoutButton" class="logout-button">Logout</button></div>
+            <p>Examination administration · MySQL</p></div><div class="admin-account"><span>Admin: <strong id="adminName">Administrator</strong></span><button type="button" id="logoutButton" class="logout-button">Logout</button></div>
         </div>
     </header>
 
@@ -24,7 +24,6 @@
 
         <section class="card setup-bar">
             <div><strong id="dataSource">Loading data</strong><p id="dataDetails" class="note"></p></div>
-            <button type="button" id="demoButton" class="secondary">Load Demo Inputs</button>
         </section>
         <div id="message" class="message" role="status" aria-live="polite" hidden></div>
         <form id="seatingForm" class="seating-form">
@@ -105,58 +104,6 @@
                 <div class="bulk-actions"><label class="select-all-label"><input type="checkbox" id="allDivisions"> Select All Classes</label><button type="button" class="secondary compact" id="selectShownDivisions">Select Shown</button><button type="button" class="text-button" id="clearDivisions">Clear All</button><span id="divisionCount" class="selection-count" aria-live="polite"></span></div>
                 <p id="divisionNoMatches" class="note" hidden>No classes match your search.</p>
                 <div class="option-grid selection-list" id="divisionOptions">
-
-                    <label class="option-card">
-
-                        <input
-                            type="checkbox"
-                            name="division"
-                            value="CE-A"
-                        >
-
-                        <span>CE-A</span>
-
-                    </label>
-
-
-                    <label class="option-card">
-
-                        <input
-                            type="checkbox"
-                            name="division"
-                            value="CE-B"
-                        >
-
-                        <span>CE-B</span>
-
-                    </label>
-
-
-                    <label class="option-card">
-
-                        <input
-                            type="checkbox"
-                            name="division"
-                            value="IT-A"
-                        >
-
-                        <span>IT-A</span>
-
-                    </label>
-
-
-                    <label class="option-card">
-
-                        <input
-                            type="checkbox"
-                            name="division"
-                            value="EXTC-A"
-                        >
-
-                        <span>EXTC-A</span>
-
-                    </label>
-
                 </div>
 
             </section>
@@ -173,58 +120,6 @@
                 <div class="bulk-actions"><label class="select-all-label"><input type="checkbox" id="allRooms"> Select All Rooms</label><button type="button" class="secondary compact" id="selectShownRooms">Select Shown</button><button type="button" class="text-button" id="clearRooms">Clear All</button><span id="roomCount" class="selection-count" aria-live="polite"></span></div>
                 <p id="roomNoMatches" class="note" hidden>No rooms match your search.</p>
                 <div class="option-grid selection-list" id="roomOptions">
-
-                    <label class="option-card">
-
-                        <input
-                            type="checkbox"
-                            name="room"
-                            value="101"
-                        >
-
-                        <span>Room 101</span>
-
-                    </label>
-
-
-                    <label class="option-card">
-
-                        <input
-                            type="checkbox"
-                            name="room"
-                            value="102"
-                        >
-
-                        <span>Room 102</span>
-
-                    </label>
-
-
-                    <label class="option-card">
-
-                        <input
-                            type="checkbox"
-                            name="room"
-                            value="103"
-                        >
-
-                        <span>Room 103</span>
-
-                    </label>
-
-
-                    <label class="option-card">
-
-                        <input
-                            type="checkbox"
-                            name="room"
-                            value="104"
-                        >
-
-                        <span>Room 104</span>
-
-                    </label>
-
                 </div>
 
                 <p class="note">
@@ -306,11 +201,30 @@
 
         <details class="card import-section">
             <summary>Use your own student CSV</summary>
-            <p class="note">Columns: student_id,name,roll_no,division. The ZIP includes a sample CSV. This import stays in this browser session and uses the local allocator, even when the server is running.</p>
+            <p class="note">Columns: student_id,name,roll_no,division. Upload adds records permanently to MySQL. Duplicate IDs or division roll numbers reject the entire upload. Maximum 600 students per upload.</p>
             <label for="studentCsv">Student CSV file</label>
             <input type="file" id="studentCsv" accept=".csv,text/csv">
-            <button type="button" id="resetData" class="secondary">Restore Server or Sample Data</button>
+            <button type="button" id="resetData" class="secondary">Refresh Database Records</button>
         </details>
+
+        <details class="card record-section">
+          <summary>Add classroom</summary>
+          <form id="roomForm" class="form-grid">
+            <label>Room ID<input name="room_id" maxlength="40" required></label>
+            <label>Room number<input name="room_number" maxlength="40" required></label>
+            <label>Rows<input name="rows" type="number" min="1" max="600" required></label>
+            <label>Columns<input name="columns" type="number" min="1" max="600" required></label>
+            <label>Usable capacity<input name="capacity" type="number" min="1" max="600" required></label>
+            <button type="submit">Save Classroom</button>
+          </form>
+        </details>
+        <section class="card history-section">
+          <h2>Saved arrangements</h2>
+          <button id="refreshHistory" type="button" class="secondary">Refresh History</button>
+          <label for="savedPlan">Latest 100 arrangements</label>
+          <select id="savedPlan"><option value="">Choose a saved arrangement</option></select>
+          <button id="openPlan" type="button">View Arrangement</button>
+        </section>
         <section id="results" class="card result-section" aria-label="Generated seating arrangement">
             <div class="result-header"><div><h2>Seating Arrangement</h2><p id="examSummary"></p></div>
                 <div class="result-actions"><button type="button" id="csvButton">Download CSV</button><button type="button" id="pdfButton">Print / Save PDF</button></div></div>
@@ -329,7 +243,6 @@
 
     <script src="session.js"></script>
     <script src="js/selection.js"></script>
-    <script src="js/demo-data.js"></script>
     <script src="js/allocator.js"></script>
     <script src="script.js"></script>
 

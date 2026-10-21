@@ -7,7 +7,7 @@ const {
   validatePlan
 } = require('../public/js/allocator');
 
-const demo = require('../public/js/demo-data');
+const demo = require('./fixtures');
 
 const demoStudents = demo.students.filter(student =>
   ['CE-A', 'CE-B', 'IT-A', 'EXTC-A'].includes(student.division)
@@ -238,5 +238,23 @@ for (const strategy of ['shuffled', 'column']) {
         assert.equal(result, expected);
       }
     }
+  });
+}
+test('empty datasets and more than 600 physical seats are rejected',()=>{
+  assert.throws(()=>allocate([], [room(2,3)], 'shuffled'));
+  assert.throws(()=>allocate(students([1]), [], 'shuffled'));
+  assert.throws(()=>allocate(students([1]), [room(601,1)], 'shuffled'));
+});
+for (const size of [20,200,600]) for (const strategy of ['shuffled','column']) {
+  test(strategy + ': performance and integrity at ' + size + ' students',()=>{
+    const input=students([size/2,size/2]);
+    const rooms=Array.from({length:Math.ceil(size/20)},(_,i)=>({...room(5,4),room_id:'R'+i}));
+    const start=performance.now();
+    const plan=allocate(input,rooms,strategy);
+    const elapsed=performance.now()-start;
+    assert.equal(plan.seats.length,size);
+    assert.equal(validatePlan(plan,input,rooms,strategy).valid,true);
+    assert.ok(elapsed<2500);
+    console.log(strategy+' '+size+' students: '+elapsed.toFixed(1)+' ms');
   });
 }

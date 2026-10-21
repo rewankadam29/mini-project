@@ -38,7 +38,5 @@
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = data;
-  } else {
-    root.DemoData = data;
-  }
+  } 
 })(typeof globalThis !== 'undefined' ? globalThis : this);

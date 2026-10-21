@@ -8,7 +8,7 @@ document.getElementById('showPassword').addEventListener('click', () => {
 });
 async function checkSession() {
   if (location.protocol === 'file:') {
-    showError('Start the project with npm.cmd run demo, then open http://localhost:3000 to sign in.');
+    showError('Start the project with npm run dev, then open http://localhost:3000 to sign in.');
     document.getElementById('signIn').disabled = true; return;
   }
   try {
@@ -16,7 +16,6 @@ async function checkSession() {
     if (!response.ok) throw new Error('Could not connect to the login service.');
     const result = await response.json();
     if (result.authenticated) { location.replace('/index.html'); return; }
-    document.getElementById('demoCredentials').hidden = !result.demoCredentials;
   } catch (error) { showError(`${error.message} Make sure the Node server is running.`); }
 }
 loginForm.addEventListener('submit', async event => {

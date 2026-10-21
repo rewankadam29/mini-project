@@ -21,7 +21,7 @@
         throw new AllocationError('INVALID_INPUT', 'Room dimensions and capacity must be positive integers. Capacity cannot exceed rows × columns.');
       }
     }
-    if (rooms.reduce((sum, room) => sum + room.rows * room.columns, 0) > 600) throw new AllocationError('INVALID_INPUT', 'This Phase 3 prototype supports at most 600 physical seats per request.');
+    if (rooms.reduce((sum, room) => sum + room.rows * room.columns, 0) > 600) throw new AllocationError('INVALID_INPUT', 'The allocator supports at most 600 physical seats per request.');
     const capacity = rooms.reduce((sum, room) => sum + room.capacity, 0);
     if (students.length > capacity) throw new AllocationError('INSUFFICIENT_SEATS', `Insufficient Seats: ${students.length} students need seats, but selected rooms provide ${capacity}.`);
   }

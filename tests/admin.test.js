@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createAuth } = require('../backend/auth');
 const selection = require('../public/js/selection');
-const demo = require('../public/js/demo-data');
+const demo = require('./fixtures');
 
 test('login rejects wrong passwords, accepts credentials, and expires sessions', () => {
   let time = 100; const auth = createAuth({ username: 'test', password: 'TestPassword123', now: () => time, ttl: 1000 });

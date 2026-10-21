@@ -361,7 +361,6 @@ input[type="checkbox"],input[type="radio"] { accent-color:#153e75; width:17px; h
 .password-field input { padding-right:66px; }
 .password-toggle { position:absolute; right:6px; top:5px; padding:9px 10px; color:#153e75; background:transparent; font-size:12px; }
 .password-toggle:hover { background:#edf2f8; }
-.demo-credentials { padding-top:24px; color:#526279; font-size:13px; line-height:1.7; }
 .login-footnote { color:#8190a4; font-size:12px; margin-top:28px; }
 @media(max-width:750px) {
  .admin-header { flex-direction:column; align-items:flex-start; }
@@ -376,3 +375,30 @@ input[type="checkbox"],input[type="radio"] { accent-color:#153e75; width:17px; h
  .login-panel { padding:34px 28px; }
 }
 @media print { .admin-account { display:none!important; } }
+
+/* Formal examination output */
+.record-section,.history-section { margin-top:22px; }
+.record-section form { margin-top:18px; }
+.record-section input { display:block; width:100%; padding:10px; border:1px solid #aaa; }
+.history-section select { margin:12px 0; }
+#results { color:#111; background:#fff; font-family:Arial,sans-serif; }
+#results h2,#results h3,#results h4,#results p { color:#111; }
+#results table { border-collapse:collapse; width:100%; }
+#results th,#results td { background:#fff; color:#111; border:1px solid #777; overflow-wrap:anywhere; }
+#results .front-label { background:#f5f5f5; color:#222; }
+.room-result { margin:24px 0; border-top:1px solid #777; padding-top:18px; }
+.room-result h3,.room-result h4 { margin:8px 0; }
+.signature { margin-top:24px; font-size:12px; }
+@media print {
+  @page { size:A4 landscape; margin:12mm; }
+  body { font-family:Arial,sans-serif; color:#000; }
+  .history-section,.record-section,.result-header,#validationSummary,#legend { display:none!important; }
+  #results .room-result { break-before:page; break-inside:auto; margin:0; padding:0; border:0; }
+  #results .room-result:first-child { break-before:auto; }
+  .table-scroll { overflow:visible; }
+  #results table { min-width:0; }
+  #results th,#results td { padding:5px; font-size:10pt; }
+  #results tr { break-inside:avoid; }
+  #results thead { display:table-header-group; }
+  .signature { break-inside:avoid; }
+}

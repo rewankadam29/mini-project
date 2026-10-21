@@ -1,120 +1,84 @@
-# Exam Seating Arrangement Generator
+# Exam Seating Arrangement Generator — Phase 4
 
-Phase 3 implementation for Mini Project PR1, Semester V, SPIT.
-
+Semester V mini project, Sardar Patel Institute of Technology, Mumbai.
 Team: Rewan Kadam (2024300099), Anish Kumar Karlupia (2024300107), Keshav Raina (2024300188).
 Guide: Prof. Govind Gaundalkar.
 
-## Run immediately
+## Windows setup
 
-Extract this ZIP first. The app opens with an admin login. Run the Node demo below and open http://localhost:3000. Demo username: `admin`. Demo password: `Admin@123`. Opening HTML directly displays the login page with instructions to start the server.
+Install Node.js 20.12 or newer and MySQL Server 8.0.16 or newer with MySQL Workbench. Start your MySQL Windows service. Extract the project ZIP and open the extracted folder in VS Code.
 
-For a working backend demo, install Node.js 20.12 or newer (Node.js 22 or 24 LTS recommended), open a terminal in this project folder and run:
+In PowerShell, from the folder containing package.json:
 
-```powershell
-npm run demo
-```
-
-Open http://localhost:3000. This command uses the built-in Node HTTP server, executes the shared backend service and stores the latest 100 plans in server memory. It needs no `npm install`. Restarting the server clears these plans. Press Ctrl+C to stop.
-
-## Express backend
-
-```powershell
+~~~powershell
 npm install
 Copy-Item .env.example .env
-npm start
-```
+notepad .env
+~~~
 
-`.env.example` defaults to `DATA_SOURCE=demo`. Express runs the same service as the zero-install server. To use MySQL, follow the next section and set `DATA_SOURCE=mysql` in `.env`. There is no silent fallback from MySQL to server sample data.
+Set DB_HOST=127.0.0.1, DB_PORT=3306, DB_USER and DB_PASSWORD to your actual local MySQL credentials. Keep DB_NAME=exam_seating unless you also change the schema database name. Set ADMIN_USERNAME to your chosen login and ADMIN_PASSWORD to a private password of 12–256 characters. Quote values containing # or spaces. No administrator account is preconfigured. Never commit .env.
 
-## MySQL setup
+In MySQL Workbench, connect to your local server, select File → Open SQL Script, open database/schema.sql, and execute the entire script using the lightning button. This creates the database and its five empty tables. Refresh Schemas.
 
-Use MySQL 8.0.16 or newer. In MySQL Workbench, open and execute `database/schema.sql`, then `database/seed.sql`. These scripts create the database, tables and 80 synthetic students across four divisions. Seed inserts ignore existing unique records. Do not run them against a database with unrelated data.
+Alternatively, start the MySQL command-line client from PowerShell (adjust the installed version path):
 
-Copy `.env.example` to `.env`, set the real DB host, port, username and password, and set `DATA_SOURCE=mysql`. Run `npm start`. The page should say **MySQL database · backend allocation**. Generate a plan and verify:
+~~~powershell
+& "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p
+~~~
 
-```sql
-USE exam_seating;
-SELECT plan_id, exam_name, strategy, created_at FROM seating_plan ORDER BY plan_id DESC;
-SELECT plan_id, COUNT(*) AS allocated_students FROM seating GROUP BY plan_id;
-```
+At the mysql> prompt, use your actual extracted path, with forward slashes:
 
-`seating_plan` stores the exam metadata and a snapshot for each generation. It extends the four-table Phase 2 design so multiple arrangements can coexist. There is no separate `EXAM` table. `seating` stores the normalized student-to-seat mapping. Both inserts run in one transaction. Unique constraints prevent duplicate students or seats within a plan.
+~~~sql
+SOURCE C:/Users/rewan/OneDrive/Desktop/coding/exam-seating/database/schema.sql;
+SHOW TABLES FROM exam_seating;
+EXIT;
+~~~
 
-Live MySQL persistence and the installed Express adapter have not been executed in the preparation environment. They need a local integration check before being presented as verified. The shared service, allocator and zero-install HTTP adapter are covered by the included tests.
+Then, in PowerShell:
 
-## Modules
+~~~powershell
+npm run dev
+~~~
 
-| Module | Files | Responsibility |
-| --- | --- | --- |
-| Frontend | public/index.html, style.css, script.js | Inputs, validation messages, seating grids, CSV import/export, printing |
-| Graph and allocation | public/js/allocator.js | Seat/column graph, division queues, bounded backtracking, independent output validation |
-| Backend service | backend/service.js | Request checks, catalog selection, generation and save orchestration |
-| Storage | backend/repository.js | Demo memory store or MySQL reads and transactional writes |
-| Server adapters | backend/server.js, demo-server.js | Express adapter or zero-install HTTP adapter |
-| Database | database/schema.sql, seed.sql | Schema, relational constraints and synthetic seed data |
-| Verification | tests/allocator.test.js, api.test.js | Allocation oracle, constraints, errors, persistence and HTTP checks |
+Open http://localhost:3000 and sign in with the values you set in .env. Ctrl+C stops the server. Opening index.html directly is not supported. If PowerShell blocks npm.ps1, use npm.cmd in the same commands.
 
-## Seating rules
+MySQL is required: startup fails with a clear error if the database is unreachable. A missing schema or a later database failure produces an API error; there is no fallback storage.
 
-**Fully shuffled:** each usable seat is a vertex. Edges connect immediate horizontal and vertical neighbours in the same room. A division is a color. Adjacent occupied seats cannot have the same color. Diagonals do not count. Student assignment within each division follows roll-number order. “Shuffled” refers to division distribution, not random ordering.
+## Use the application
 
-**Column based:** each usable column is a vertex with capacity equal to its usable seats. Edges connect immediate neighbouring columns in the same room. Each occupied column contains one division, filled top to bottom. Adjacent occupied columns must differ. The same division can repeat vertically within its column.
+1. Expand Add classroom and save the room ID, number, rows, columns and usable capacity.
+2. Upload a UTF-8 CSV with headers: student_id,name,roll_no,division. Use actual student records. Roll numbers must be positive integers and unique within a division; student IDs must be unique. Up to 600 records per upload. Imports add records; duplicates reject the entire batch.
+3. Enter the exam title, date and session start time. Select divisions and rooms; search, floor selection, bulk selection and Auto Select Rooms remain available.
+4. Choose a strategy and Generate Seating Arrangement. The backend allocates, validates and commits the plan and seat records in one transaction.
+5. View each room grid and its expandable student roster. Download CSV or choose Print / Save PDF → Save as PDF. Use A4 landscape, default scale, and turn off browser headers/footers.
+6. Use Saved arrangements to retrieve the latest 100 plans. Restart the server, sign in again and open a saved plan to verify persistence.
 
-The solver tries eligible divisions with the greatest remaining count first. It backtracks if that choice cannot complete the plan. Empty seats or columns may separate repeated divisions. It tries partial column fills where necessary. It validates all students and conflicts before saving anything.
+The college sheets include title, date/session, room, roll/ID, row/column/seat and signature space. Wide grids are split into groups of eight columns. Print pagination and PDF readability still need browser verification on your computer.
 
-Raw capacity is necessary but does not prove that a seating arrangement exists. An infeasible arrangement returns `CONSTRAINT_CONFLICT`. Reaching the time or state budget returns `SEARCH_LIMIT`, which does **not** prove infeasibility. The prototype supports at most 600 physical seats per request and bounds search to 200,000 states or approximately two seconds. Hard cases may require more rooms or different divisions.
+## Seating rules and limits
 
-Graph building is O(V+E). Search can be exponential in the number of vertices. Counts-aware pruning reduces many searches, but the implementation does not guarantee the minimum number of rooms or a globally optimal arrangement.
+Shuffled seating disallows equal divisions in horizontally or vertically adjacent occupied seats. Column seating assigns one division per occupied column and disallows equal divisions in adjacent occupied columns. Empty separators are permitted. There is no separate subject-enrolment rule in the original project; the title is examination metadata.
 
-## CSV and PDF
+The existing bounded graph-search allocator supports at most 600 physical seats per generation request, 200,000 search states and a two-second search budget. A search-limit response does not prove infeasibility. Add rooms within the supported limit or split the exam into batches. Auto Select checks candidate room sets in the browser; the saved arrangement is always independently generated and validated by the backend.
 
-Use `database/students-sample.csv` as the import format: `student_id,name,roll_no,division`. IDs must be unique and roll numbers must be positive and unique within a division. CSV imports run in browser memory and do not write into MySQL. Rooms still come from the current catalog. Download CSV exports the generated plan with exam metadata. **Print / Save PDF** opens the browser print dialog. Choose **Save as PDF**, landscape and background graphics for colored seats.
+Student, classroom and plan data are persistent in MySQL. Login sessions are temporary server memory; restarting requires signing in again. The app binds to localhost for the intended local evaluation.
 
-## API
+## Tests
 
-| Method | Route | Result |
-| --- | --- | --- |
-| GET | /api/catalog | Students, rooms and data source |
-| POST | /api/arrangements | Generate and save a complete validated plan |
-| GET | /api/arrangements/:id | Retrieve a saved plan |
-
-POST example:
-
-```json
-{"examName":"CNS","examDate":"2026-10-12","examTime":"10:00","divisions":["CE-A","CE-B","IT-A","EXTC-A"],"rooms":["101","102","103"],"seatingType":"shuffled"}
-```
-
-This is an administrator prototype for local evaluation. It binds to localhost. Admin login uses server-verified credentials, an expiring HttpOnly cookie and server-side sessions. Set ADMIN_USERNAME and ADMIN_PASSWORD in .env to change the default demo account. Sessions clear when the server restarts. More detailed roles remain future work. Do not use real private student data on a public server without adding access control.
-
-## Verify
-
-```powershell
+~~~powershell
 npm test
-```
+~~~
 
-The 25 tests include both modes, exact capacity errors, infeasibility, blank separators, partially unavailable seats, duplicate IDs, search-limit handling, corrupted plans, API validation, failed storage and a live HTTP adapter. An independent exhaustive oracle checks all two-division count combinations on a 2×3 room.
+Unit and HTTP tests use fixtures inside tests only. They do not connect to your real database except the explicitly enabled live-MySQL suite. The connection-failure test targets an unused local port.
 
-## Git and evaluation
+For live database testing, make a separate schema: open database/schema.sql in a new Workbench query, change BOTH exam_seating occurrences to exam_seating_test, and run it. Your DB_USER must have access to this test schema. Then:
 
-The ZIP includes a local Git repository and actual commits created during this preparation session under the author `Codex`. It does not claim earlier team work. Feature branches contain implementation changes and merge commits. It is not linked to GitHub yet. Use `docs/GIT_WORKFLOW.md` to inspect it and connect your own repository. Review the generated code as a team and follow your college's assistance disclosure rules.
-
-See `docs/PHASE3_DEMO.md` for the presentation sequence and viva answers.
-
-## Admin selection update
-
-Use Select All Classes or Select All Rooms to select the complete catalog, including options hidden by search. Use Select Shown to add only visible matches without clearing previous selections. Search classes by name and filter by department. Clear All resets the entire selection. Counts show selected classes, selected rooms, students and available seats. A partially selected catalog shows an indeterminate Select All checkbox. Logout invalidates the server session.
-
-
-## Testing
-
-The project includes automated tests for:
-- Admin authentication
-- Class and classroom selection
-- Seating allocation strategies
-- Seating arrangement validation
-- Backend API operations
-
-Run the tests using:
-
+~~~powershell
+$env:TEST_DB_NAME = "exam_seating_test"
 npm test
+Remove-Item Env:TEST_DB_NAME
+~~~
+
+The test loads credentials from .env, adds uniquely prefixed records, checks both strategies, duplicate rejection, rollback and persistence after reconnect, then deletes only its test records. Never use your production schema as TEST_DB_NAME. An interrupted run may leave prefixed test records.
+
+See PHASE4.md for executed results, limitations, APIs and the evaluation walkthrough.

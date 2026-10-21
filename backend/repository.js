@@ -1,25 +1,34 @@
-const sample = require('../public/js/demo-data');
-
-class DemoRepository {
-  constructor() { this.plans = new Map(); this.nextId = 1; }
-  async catalog() { return structuredClone(sample); }
-  async save(plan) {
-    const id = this.nextId++;
-    this.plans.set(id, structuredClone(plan));
-    if (this.plans.size > 100) this.plans.delete(this.plans.keys().next().value);
-    return id;
-  }
-  async find(id) { return this.plans.get(Number(id)) || null; }
-}
-
 class MySQLRepository {
-  constructor() {
+  constructor(config = {}) {
     const mysql = require('mysql2/promise');
     this.pool = mysql.createPool({
       host: process.env.DB_HOST || 'localhost', port: Number(process.env.DB_PORT || 3306),
       user: process.env.DB_USER || 'root', password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || 'exam_seating', waitForConnections: true, connectionLimit: 5
+      database: process.env.DB_NAME || 'exam_seating', waitForConnections: true, connectionLimit: 5, connectTimeout: 5000, ...config
     });
+  }
+  async close() { await this.pool.end(); }
+  async ping() { await this.pool.execute('SELECT 1'); }
+  async history() {
+    const [rows] = await this.pool.execute('SELECT plan_id, exam_name, DATE_FORMAT(exam_date, "%Y-%m-%d") AS exam_date, exam_time, strategy FROM seating_plan ORDER BY plan_id DESC LIMIT 100');
+    return rows;
+  }
+  async addStudents(students) {
+    const connection = await this.pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      for (const s of students) {
+        await connection.execute('INSERT INTO division (division_name, department) VALUES (?, ?) ON DUPLICATE KEY UPDATE division_name = VALUES(division_name)', [s.division, s.division.split('-')[0]]);
+        const [divisions] = await connection.execute('SELECT division_id FROM division WHERE division_name = ?', [s.division]);
+        await connection.execute('INSERT INTO student (student_id, name, roll_no, division_id) VALUES (?, ?, ?, ?)', [s.student_id, s.name, s.roll_no, divisions[0].division_id]);
+      }
+      await connection.commit();
+      return students.length;
+    } catch (error) { await connection.rollback(); throw error; }
+    finally { connection.release(); }
+  }
+  async addRoom(room) {
+    await this.pool.execute('INSERT INTO room (room_id, room_number, `rows`, `columns`, capacity) VALUES (?, ?, ?, ?, ?)', [room.room_id, room.room_number, room.rows, room.columns, room.capacity]);
   }
   async catalog() {
     const [students] = await this.pool.execute('SELECT s.student_id, s.name, s.roll_no, d.division_name AS division FROM student s JOIN division d ON d.division_id = s.division_id ORDER BY d.division_name, s.roll_no');
@@ -48,8 +57,4 @@ class MySQLRepository {
   }
 }
 
-function createRepository(source = process.env.DATA_SOURCE || 'demo') {
-  if (!['demo', 'mysql'].includes(source)) throw new Error('DATA_SOURCE must be demo or mysql.');
-  return source === 'mysql' ? new MySQLRepository() : new DemoRepository();
-}
-module.exports = { createRepository, DemoRepository, MySQLRepository };
+module.exports = { MySQLRepository };
