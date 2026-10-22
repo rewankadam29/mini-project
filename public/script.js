@@ -264,112 +264,89 @@ async function autoSelectRooms() {
     return;
   }
 
-  const counts = new Map();
-
-  for (const student of students) {
-    counts.set(
-      student.division,
-      (counts.get(student.division) || 0) + 1
-    );
-  }
-
-  const largestDivision = Math.max(...counts.values());
   selectingRooms = true;
-
-  const controls = [
-    ...document.querySelectorAll(
-      '#seatingForm input, #seatingForm select, ' +
-      '#seatingForm button, #studentCsv, #resetData, #roomForm button'
-    )
-  ];
-
-  const previousStates = controls.map(control => control.disabled);
-
-  controls.forEach(control => {
-    control.disabled = true;
-  });
-
+  const controlStates = lockControls();
   const button = document.getElementById('autoRoomsButton');
   button.textContent = 'Finding rooms...';
-
   message('Finding rooms that satisfy the selected seating rules...');
-
-  const chosen = [];
-  let capacity = 0;
-  let physicalSeats = 0;
-  let maxDivisionSeats = 0;
-  let searchLimit = false;
-  let found = false;
-
   try {
-    for (const room of pool) {
-      if (physicalSeats + room.rows * room.columns > 600) continue;
-
-      chosen.push(room);
-      capacity += room.capacity;
-      physicalSeats += room.rows * room.columns;
-      maxDivisionSeats += divisionCapacity(room, strategy);
-
-      if (
-        capacity < students.length ||
-        maxDivisionSeats < largestDivision
-      ) {
-        continue;
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 0));
-
-      try {
-        SeatingAllocator.allocate(students, chosen, strategy, {
-          maxStates: 50000,
-          timeoutMs: 300
-        });
-
-        const ids = new Set(
-          chosen.map(selectedRoom => String(selectedRoom.room_id))
-        );
-
-        for (const input of form.querySelectorAll('[name="room"]')) {
-          input.checked = ids.has(input.value);
-        }
-
-        clearResults();
-        updateSelection();
-        found = true;
-
-        message(
-          `Selected ${chosen.length} rooms with ${capacity} seats. ` +
-          'Seating rules checked. Click Generate Seating Arrangement.'
-        );
-
-        break;
-      } catch (error) {
-        if (error.code === 'SEARCH_LIMIT') {
-          searchLimit = true;
-        } else if (error.code !== 'CONSTRAINT_CONFLICT') {
-          throw error;
-        }
-      }
-    }
-
-    if (!found) {
+    const result = await findRoomSet(students, pool, strategy);
+    if (!result.rooms) {
       message(
-        searchLimit
+        result.searchLimit
           ? 'Automatic checking reached its limit. Select more rooms manually or try another seating type.'
           : 'No valid room set was found in these filters. Try All floors or select more rooms manually.',
         true
       );
+      return;
     }
+    const ids = new Set(result.rooms.map(room => String(room.room_id)));
+    for (const input of form.querySelectorAll('[name="room"]')) {
+      input.checked = ids.has(input.value);
+    }
+    clearResults();
+    updateSelection();
+    message(
+      `Selected ${result.rooms.length} rooms with ${result.capacity} seats. ` +
+      'Seating rules checked. Click Generate Seating Arrangement.'
+    );
   } catch (error) {
     message(error.message, true);
   } finally {
-    controls.forEach((control, i) => {
-      control.disabled = previousStates[i];
-    });
-
+    restoreControls(controlStates);
     button.textContent = 'Auto Select Rooms';
     selectingRooms = false;
   }
+}
+
+function lockControls() {
+  const controls = [...document.querySelectorAll(
+    '#seatingForm input, #seatingForm select, #seatingForm button, ' +
+    '#studentCsv, #resetData, #roomForm button'
+  )];
+  const states = controls.map(control => [control, control.disabled]);
+  for (const control of controls) control.disabled = true;
+  return states;
+}
+
+function restoreControls(states) {
+  for (const [control, disabled] of states) control.disabled = disabled;
+}
+
+async function findRoomSet(students, rooms, strategy) {
+  const counts = new Map();
+  for (const student of students) {
+    counts.set(student.division, (counts.get(student.division) || 0) + 1);
+  }
+  const largestDivision = Math.max(...counts.values());
+  const chosen = [];
+  let capacity = 0;
+  let physicalSeats = 0;
+  let divisionSeats = 0;
+  let searchLimit = false;
+
+  for (const room of rooms) {
+    const roomSize = room.rows * room.columns;
+    if (physicalSeats + roomSize > 600) continue;
+    chosen.push(room);
+    capacity += room.capacity;
+    physicalSeats += roomSize;
+    divisionSeats += divisionCapacity(room, strategy);
+    if (capacity < students.length || divisionSeats < largestDivision) continue;
+
+    await new Promise(resolve => setTimeout(resolve, 0));
+    try {
+      SeatingAllocator.allocate(students, chosen, strategy, {
+        maxStates: 50000,
+        timeoutMs: 300
+      });
+      return { rooms: [...chosen], capacity, searchLimit };
+    } catch (error) {
+      if (error.code === 'SEARCH_LIMIT') searchLimit = true;
+      else if (error.code !== 'CONSTRAINT_CONFLICT') throw error;
+    }
+  }
+  return { rooms: null, capacity, searchLimit };
 }
 
 function showCatalog() {
@@ -732,182 +709,137 @@ form.addEventListener('submit', async event => {
   }
 });
 
+function tableHead(titles) {
+  const row = element('tr');
+  for (const title of titles) row.append(element('th', title));
+  const head = element('thead');
+  head.append(row);
+  return head;
+}
+
+function seatCell(student, position, capacity) {
+  const cell = element('td');
+  if (!student) {
+    cell.append(element(
+      'span',
+      position > capacity ? 'Unavailable' : 'Empty',
+      'empty-seat'
+    ));
+    return cell;
+  }
+  cell.append(
+    element('strong', student.division),
+    element('span', `Roll ${student.roll_no}`),
+    element('small', `ID ${student.student_id} · Seat ${student.seat_number}`)
+  );
+  cell.title = `${student.name} · Seat ${student.seat_number}`;
+  return cell;
+}
+
+function seatingGrid(room, seatMap, firstColumn, lastColumn) {
+  const table = element('table', undefined, 'seating-grid');
+  table.append(element('caption', `Room ${room.room_number} seating grid`, 'sr-only'));
+  table.append(tableHead([
+    'Row',
+    ...Array.from(
+      { length: lastColumn - firstColumn + 1 },
+      (_, i) => `Column ${firstColumn + i}`
+    )
+  ]));
+
+  const body = element('tbody');
+  for (let rowNumber = 1; rowNumber <= room.rows; rowNumber++) {
+    const row = element('tr');
+    const rowHeader = element('th', String(rowNumber));
+    rowHeader.scope = 'row';
+    row.append(rowHeader);
+    for (let column = firstColumn; column <= lastColumn; column++) {
+      const position = (rowNumber - 1) * room.columns + column;
+      row.append(seatCell(
+        seatMap.get(`${rowNumber}:${column}`),
+        position,
+        room.capacity
+      ));
+    }
+    body.append(row);
+  }
+  table.append(body);
+
+  const scroll = element('div', undefined, 'table-scroll');
+  scroll.append(table);
+  return scroll;
+}
+
+function roster(seats) {
+  const details = element('details', undefined, 'roster');
+  details.append(element('summary', 'Student allocation list'));
+  const table = element('table');
+  table.append(tableHead(['Seat', 'Student ID', 'Name', 'Division', 'Roll']));
+  const body = element('tbody');
+  for (const student of [...seats].sort((a, b) => a.seat_number - b.seat_number)) {
+    const row = element('tr');
+    for (const value of [student.seat_number, student.student_id, student.name, student.division, student.roll_no]) {
+      row.append(element('td', String(value)));
+    }
+    body.append(row);
+  }
+  table.append(body);
+  details.append(table);
+  return details;
+}
+
+function roomResult(plan, room, date) {
+  const seats = plan.seats.filter(seat => String(seat.room_id) === String(room.room_id));
+  const seatMap = new Map(seats.map(seat => [`${seat.row}:${seat.column}`, seat]));
+  const section = element('section', undefined, 'room-result');
+  section.append(
+    element('h3', 'Sardar Patel Institute of Technology'),
+    element('h4', 'EXAMINATION SEATING ARRANGEMENT'),
+    element('p', `${plan.exam.examName} | Date: ${date} | Session: ${plan.exam.examTime}`),
+    element('h3', `Room ${room.room_number} · ${seats.length}/${room.capacity} occupied`),
+    element('p', 'FRONT / BLACKBOARD', 'front-label')
+  );
+  for (let firstColumn = 1; firstColumn <= room.columns; firstColumn += 8) {
+    section.append(seatingGrid(
+      room,
+      seatMap,
+      firstColumn,
+      Math.min(room.columns, firstColumn + 7)
+    ));
+  }
+  section.append(
+    roster(seats),
+    element('p', 'Invigilator signature: ____________________    Date: ______________', 'signature')
+  );
+  return section;
+}
+
 function render(plan) {
   const date = plan.exam.examDate.split('-').reverse().join('/');
-
+  const strategy = plan.strategy === 'column' ? 'Column-Based' : 'Fully Shuffled';
   document.getElementById('examSummary').textContent =
-    `${plan.exam.examName} · ${date} · ${plan.exam.examTime} · ` +
-    `${plan.strategy === 'column' ? 'Column-Based' : 'Fully Shuffled'} · ${plan.source}`;
+    `${plan.exam.examName} · ${date} · ${plan.exam.examTime} · ${strategy} · ${plan.source}`;
 
-  const stats = document.getElementById('statistics');
-  stats.replaceChildren();
-
-  const values = [
+  const statistics = document.getElementById('statistics');
+  statistics.replaceChildren();
+  for (const [label, value] of [
     ['Students', plan.stats.students],
     ['Capacity', plan.stats.capacity],
     ['Empty seats', plan.stats.emptySeats],
     ['Search time', `${plan.stats.elapsedMs} ms`]
-  ];
-
-  for (const [label, value] of values) {
+  ]) {
     const item = element('div', undefined, 'stat');
-
-    item.append(
-      element('strong', String(value)),
-      element('span', label)
-    );
-
-    stats.append(item);
+    item.append(element('strong', String(value)), element('span', label));
+    statistics.append(item);
   }
 
   document.getElementById('validationSummary').textContent =
-    'Validation passed: each student appears once, each occupied seat is unique, and there are zero adjacency conflicts. ' +
-    `Graph: ${plan.stats.vertices} vertices, ${plan.stats.edges} edges. ` +
-    `Backtracks: ${plan.stats.backtracks}.`;
-
+    'Validation passed: each student and occupied seat is unique, with zero adjacency conflicts. ' +
+    `Graph: ${plan.stats.vertices} vertices, ${plan.stats.edges} edges. Backtracks: ${plan.stats.backtracks}.`;
   document.getElementById('legend').replaceChildren();
-  const result = document.getElementById('roomResults');
-  result.replaceChildren();
-
-  for (const room of plan.rooms) {
-    const seats = plan.seats.filter(
-      student => String(student.room_id) === String(room.room_id)
-    );
-
-    const section = element('section', undefined, 'room-result');
-
-    section.append(element('h3', 'Sardar Patel Institute of Technology'),
-      element('h4', 'EXAMINATION SEATING ARRANGEMENT'),
-      element('p', plan.exam.examName + ' | Date: ' + date + ' | Session: ' + plan.exam.examTime));
-    section.append(
-      element(
-        'h3',
-        `Room ${room.room_number} · ${seats.length}/${room.capacity} occupied`
-      ),
-      element('p', 'FRONT / BLACKBOARD', 'front-label')
-    );
-
-    for (let firstColumn = 1; firstColumn <= room.columns; firstColumn += 8) {
-    const lastColumn = Math.min(room.columns, firstColumn + 7);
-    const scroll = element('div', undefined, 'table-scroll');
-    const table = element('table', undefined, 'seating-grid');
-
-    const caption = element(
-      'caption',
-      `Room ${room.room_number} seating grid`,
-      'sr-only'
-    );
-
-    table.append(caption);
-
-    const header = element('tr');
-    header.append(element('th', 'Row'));
-
-    for (let column = firstColumn; column <= lastColumn; column++) {
-      header.append(element('th', `Column ${column}`));
-    }
-
-    const thead = element('thead');
-    thead.append(header);
-    table.append(thead);
-
-    const body = element('tbody');
-
-    for (let rowNumber = 1; rowNumber <= room.rows; rowNumber++) {
-      const row = element('tr');
-      const rowHeader = element('th', String(rowNumber));
-      rowHeader.scope = 'row';
-      row.append(rowHeader);
-
-      for (let column = firstColumn; column <= lastColumn; column++) {
-        const cell = element('td');
-        const position =
-          (rowNumber - 1) * room.columns + column;
-
-        const student = seats.find(
-          seat => seat.row === rowNumber && seat.column === column
-        );
-
-        if (student) {
-
-          cell.append(
-            element('strong', student.division),
-            element('span', `Roll ${student.roll_no}`),
-            element('small', `ID ${student.student_id} · Seat ${student.seat_number}`)
-          );
-
-          cell.title =
-            `${student.name} · Seat ${student.seat_number}`;
-        } else {
-          cell.append(
-            element(
-              'span',
-              position > room.capacity ? 'Unavailable' : 'Empty',
-              'empty-seat'
-            )
-          );
-        }
-
-        row.append(cell);
-      }
-
-      body.append(row);
-    }
-
-    table.append(body);
-    scroll.append(table);
-    section.append(scroll);
-    }
-
-    const details = element('details', undefined, 'roster');
-    details.append(element('summary', 'Student allocation list'));
-
-    const list = element('table');
-    const listHeader = element('tr');
-
-    for (const title of [
-      'Seat',
-      'Student ID',
-      'Name',
-      'Division',
-      'Roll'
-    ]) {
-      listHeader.append(element('th', title));
-    }
-
-    const listHead = element('thead');
-    listHead.append(listHeader);
-    list.append(listHead);
-
-    const rows = element('tbody');
-
-    const sortedSeats = [...seats].sort(
-      (a, b) => a.seat_number - b.seat_number
-    );
-
-    for (const student of sortedSeats) {
-      const row = element('tr');
-
-      for (const value of [
-        student.seat_number,
-        student.student_id,
-        student.name,
-        student.division,
-        student.roll_no
-      ]) {
-        row.append(element('td', String(value)));
-      }
-
-      rows.append(row);
-    }
-
-    list.append(rows);
-    details.append(list);
-    section.append(details);
-    section.append(element('p', 'Invigilator signature: ____________________    Date: ______________', 'signature'));
-    result.append(section);
-  }
-
+  document.getElementById('roomResults').replaceChildren(
+    ...plan.rooms.map(room => roomResult(plan, room, date))
+  );
   document.getElementById('results').style.display = 'block';
 }
 
