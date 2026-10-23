@@ -45,7 +45,7 @@ function installRoomControls() {
   const section = options.closest('.card');
 
   section.querySelector('.section-heading p').textContent =
-    'Select a complete floor, choose all rooms, or let Auto Select find a valid room set.';
+    'Choose a floor to view its rooms. Checked rooms stay selected when you switch floors.';
 
   const search = document.getElementById('roomSearch');
 
@@ -57,7 +57,7 @@ function installRoomControls() {
   toolbar.append(search.parentElement);
 
   const group = element('div', undefined, 'department-filter');
-  const label = element('label', 'Floor');
+  const label = element('label', 'Show rooms on floor');
   label.htmlFor = 'floorFilter';
 
   const filter = element('select');
@@ -83,13 +83,9 @@ function installRoomControls() {
 
   document.getElementById('selectShownRooms').before(automatic);
 
-  const floors = element('div', undefined, 'bulk-actions');
-  floors.id = 'floorButtons';
-  options.before(floors);
-
   const hint = element(
     'p',
-    'Auto Select uses rooms shown by the floor and search filters. It replaces the previous room selection after finding a valid arrangement.',
+    'Selecting a floor only filters the room list; selected rooms on other floors are retained. Auto Select replaces the selection using only visible rooms.',
     'note'
   );
 
@@ -131,51 +127,12 @@ function buildFloorControls() {
   all.value = '';
   filter.append(all);
 
-  const buttons = document.getElementById('floorButtons');
-  buttons.replaceChildren();
-
   for (const floor of floors) {
+    const count = catalog.rooms.filter(room => getFloor(room) === floor).length;
     const title = floor === 'Other' ? 'Other rooms' : `Floor ${floor}`;
-    const option = element('option', title);
+    const option = element('option', `${title} (${count} rooms)`);
     option.value = floor;
     filter.append(option);
-
-    const count = catalog.rooms.filter(
-      room => getFloor(room) === floor
-    ).length;
-
-    const button = element(
-      'button',
-      `${title} (${count})`,
-      'secondary compact'
-    );
-
-    button.type = 'button';
-    button.dataset.floor = floor;
-    button.setAttribute('aria-pressed', 'false');
-
-    button.addEventListener('click', () => {
-      const ids = new Set(
-        catalog.rooms
-          .filter(room => getFloor(room) === floor)
-          .map(room => String(room.room_id))
-      );
-
-      const inputs = [
-        ...form.querySelectorAll('[name="room"]')
-      ].filter(input => ids.has(input.value));
-
-      const allChecked = inputs.every(input => input.checked);
-
-      for (const input of inputs) {
-        input.checked = !allChecked;
-      }
-
-      clearResults();
-      updateSelection();
-    });
-
-    buttons.append(button);
   }
 }
 
@@ -526,27 +483,6 @@ function updateSelection() {
   }
 
   if (!catalog) return;
-
-  for (const button of document.querySelectorAll(
-    '#floorButtons button'
-  )) {
-    const ids = new Set(
-      catalog.rooms
-        .filter(room => getFloor(room) === button.dataset.floor)
-        .map(room => String(room.room_id))
-    );
-
-    const inputs = [
-      ...form.querySelectorAll('[name="room"]')
-    ].filter(input => ids.has(input.value));
-
-    const complete =
-      inputs.length > 0 && inputs.every(input => input.checked);
-
-    button.setAttribute('aria-pressed', String(complete));
-    button.style.backgroundColor = complete ? '#153e75' : '';
-    button.style.color = complete ? 'white' : '';
-  }
 
   const totals = AdminSelection.totals(
     catalog.students,
@@ -1045,8 +981,17 @@ document.getElementById('roomForm').addEventListener('submit', async event => {
   const button = event.target.querySelector('button');
   button.disabled = true;
   try {
-    const room = Object.fromEntries(new FormData(event.target));
-    for (const key of ['rows','columns','capacity']) room[key] = Number(room[key]);
+    const values = Object.fromEntries(new FormData(event.target));
+    const roomNumber = values.room_number.trim();
+    const rows = Number(values.rows);
+    const columns = Number(values.columns);
+    const room = {
+      room_id: roomNumber,
+      room_number: roomNumber,
+      rows,
+      columns,
+      capacity: rows * columns
+    };
     await api('/api/rooms', room);
     event.target.reset();
     if (await loadCatalog()) message('Classroom saved to MySQL.');
