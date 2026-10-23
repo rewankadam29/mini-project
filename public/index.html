@@ -113,11 +113,11 @@
 
                 <div class="section-heading">
                     <h2>Available Rooms</h2>
-                    <p>Select rooms in bulk or find a specific room.</p>
+                    <p>Choose rooms from any floor. The floor filter only changes which rooms are shown.</p>
                 </div>
 
                 <div class="selection-search"><label for="roomSearch">Search rooms</label><input type="search" id="roomSearch" placeholder="Search room number..."></div>
-                <div class="bulk-actions"><label class="select-all-label"><input type="checkbox" id="allRooms"> Select All Rooms</label><button type="button" class="secondary compact" id="selectShownRooms">Select Shown</button><button type="button" class="text-button" id="clearRooms">Clear All</button><span id="roomCount" class="selection-count" aria-live="polite"></span></div>
+                <div class="bulk-actions"><label class="select-all-label"><input type="checkbox" id="allRooms"> Select All Rooms (Every Floor)</label><button type="button" class="secondary compact" id="selectShownRooms">Select Visible Rooms</button><button type="button" class="text-button" id="clearRooms">Clear Selected Rooms</button><span id="roomCount" class="selection-count" aria-live="polite"></span></div>
                 <p id="roomNoMatches" class="note" hidden>No rooms match your search.</p>
                 <div class="option-grid selection-list" id="roomOptions">
                 </div>
@@ -210,11 +210,10 @@
         <details class="card record-section">
           <summary>Add classroom</summary>
           <form id="roomForm" class="form-grid">
-            <label>Room ID<input name="room_id" maxlength="40" required></label>
             <label>Room number<input name="room_number" maxlength="40" required></label>
             <label>Rows<input name="rows" type="number" min="1" max="600" required></label>
             <label>Columns<input name="columns" type="number" min="1" max="600" required></label>
-            <label>Usable capacity<input name="capacity" type="number" min="1" max="600" required></label>
+            <p class="note full-width">Room ID is assigned automatically. All rows × columns seats are treated as usable.</p>
             <button type="submit">Save Classroom</button>
           </form>
         </details>
